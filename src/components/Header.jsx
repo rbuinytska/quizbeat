@@ -10,15 +10,15 @@ export default function Header({
   return (
     <header className="app-header">
       <div className="brand-section">
-        <div className="logo-badge">
-          <Music2 size={20} color="#fff" />
+        <div className="logo-badge" style={{ width: 32, height: 32, borderRadius: 10 }}>
+          <Music2 size={16} color="#fff" />
         </div>
         <div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span className="brand-title">QuizBeat</span>
-            <span className="brand-badge">OLDIES</span>
+            <span className="brand-title" style={{ fontSize: '1.05rem' }}>QuizBeat</span>
+            <span className="brand-badge" style={{ fontSize: '0.6rem', padding: '1px 5px' }}>OLDIES</span>
           </div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '1px' }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginTop: '1px' }}>
             {activePackName || 'Oldies Party'}
           </div>
         </div>

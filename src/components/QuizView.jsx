@@ -419,36 +419,35 @@ export default function QuizView({
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <div 
             className="flashcard-wrapper" 
-            style={{ height: 320, margin: '4px 0 16px' }}
             onClick={!isFlipped && !isTransitioning ? handleFlipCard : undefined}
           >
             <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
               {/* FRONT: Audio playing & hidden answer */}
               <div className="flashcard-front">
                 <div style={{
-                  width: 104,
-                  height: 104,
+                  width: 82,
+                  height: 82,
                   borderRadius: '50%',
                   background: 'radial-gradient(circle, #252530 0%, #101016 70%, #050508 100%)',
                   border: '3px solid #3b3b4f',
-                  boxShadow: isPlaying ? '0 0 25px rgba(139, 92, 246, 0.5)' : '0 10px 25px rgba(0,0,0,0.5)',
+                  boxShadow: isPlaying ? '0 0 25px rgba(139, 92, 246, 0.5)' : '0 8px 20px rgba(0,0,0,0.5)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: 12,
+                  marginBottom: 8,
                   position: 'relative'
                 }}>
                   <div className={`vinyl-disc ${isPlaying ? 'spinning' : ''}`} style={{ border: 'none', boxShadow: 'none' }}>
                     <div style={{
-                      width: 44,
-                      height: 44,
+                      width: 36,
+                      height: 36,
                       borderRadius: '50%',
                       background: 'var(--grad-primary)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: '#fff',
-                      fontSize: '1.2rem',
+                      fontSize: '0.95rem',
                       fontWeight: 900
                     }}>
                       {isPlaying ? '♫' : '?'}
@@ -457,7 +456,7 @@ export default function QuizView({
                 </div>
 
                 {/* Animated Waveform */}
-                <div className="waveform-container" style={{ height: 24, marginBottom: 6 }}>
+                <div className="waveform-container" style={{ height: 20, marginBottom: 4 }}>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                     <div 
                       key={i} 
@@ -467,20 +466,20 @@ export default function QuizView({
                   ))}
                 </div>
 
-                <div style={{ fontSize: '1.08rem', fontWeight: 800 }}>
+                <div style={{ fontSize: '1.02rem', fontWeight: 800 }}>
                   {isPlaying ? 'Listening to snippet...' : 'Snippet finished'}
                 </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 4, textAlign: 'center', maxWidth: 280 }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2, textAlign: 'center', maxWidth: 280 }}>
                   Guess the song out loud, then flip the card
                 </div>
 
                 {/* Card Controls */}
-                <div style={{ display: 'flex', gap: 10, marginTop: 12 }} onClick={(e) => e.stopPropagation()}>
+                <div style={{ display: 'flex', gap: 10, marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
                   <button 
                     className="icon-button"
                     onClick={handleReplay}
                     title="Replay snippet"
-                    style={{ width: 38, height: 38, borderRadius: '50%' }}
+                    style={{ width: 36, height: 36, borderRadius: '50%' }}
                   >
                     <RotateCcw size={15} />
                   </button>
@@ -491,8 +490,8 @@ export default function QuizView({
                       else startPlayback(currentTrack);
                     }}
                     style={{ 
-                      width: 38, 
-                      height: 38, 
+                      width: 36, 
+                      height: 36, 
                       borderRadius: '50%',
                       background: isPlaying ? 'rgba(239, 68, 68, 0.2)' : 'var(--grad-primary)',
                       color: '#fff',
@@ -511,18 +510,18 @@ export default function QuizView({
                     src={backTrackData.albumArt} 
                     alt="" 
                     style={{ 
-                      width: 100, 
-                      height: 100, 
-                      borderRadius: 14, 
+                      width: 82, 
+                      height: 82, 
+                      borderRadius: 12, 
                       objectFit: 'cover', 
-                      marginBottom: 10,
+                      marginBottom: 8,
                       boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
                       border: '2px solid rgba(255,255,255,0.1)'
                     }} 
                   />
                 )}
                 <div style={{ 
-                  fontSize: '1.2rem', 
+                  fontSize: '1.15rem', 
                   fontWeight: 900, 
                   textAlign: 'center',
                   lineHeight: 1.25,
@@ -531,19 +530,19 @@ export default function QuizView({
                   {backTrackData ? backTrackData.name : ''}
                 </div>
                 <div style={{ 
-                  fontSize: '1rem', 
+                  fontSize: '0.95rem', 
                   color: '#c4b5fd', 
                   fontWeight: 700, 
-                  marginTop: 4,
+                  marginTop: 3,
                   textAlign: 'center'
                 }}>
                   {backTrackData ? backTrackData.artist : ''}
                 </div>
                 {backTrackData && backTrackData.year && (
                   <div style={{ 
-                    fontSize: '0.8rem', 
+                    fontSize: '0.76rem', 
                     color: 'var(--text-muted)', 
-                    marginTop: 6,
+                    marginTop: 4,
                     background: 'rgba(255,255,255,0.06)',
                     padding: '2px 8px',
                     borderRadius: 8
@@ -562,12 +561,12 @@ export default function QuizView({
               onClick={handleFlipCard}
               disabled={isTransitioning}
               style={{
-                padding: '16px 20px',
-                fontSize: '1.05rem',
-                borderRadius: 'var(--radius-lg)'
+                padding: '13px 18px',
+                fontSize: '1rem',
+                borderRadius: 'var(--radius-md)'
               }}
             >
-              <Eye size={20} />
+              <Eye size={18} />
               <span>Show Answer (Flip)</span>
             </button>
           ) : (
