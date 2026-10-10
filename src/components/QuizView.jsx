@@ -275,7 +275,7 @@ export default function QuizView({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Clock size={13} color="var(--text-muted)" />
-          {[5, 10, 15].map(sec => (
+          {[3, 5, 10, 15].map(sec => (
             <button
               key={sec}
               onClick={() => { soundFx.playClick(); onDurationChange(sec); }}

@@ -235,7 +235,7 @@ export default function SettingsModal({
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Сколько секунд играет трек</div>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {[5, 10, 15, 30].map(s => (
+              {[3, 5, 10, 15, 30].map(s => (
                 <button
                   key={s}
                   onClick={() => { soundFx.playClick(); onDurationChange(s); }}

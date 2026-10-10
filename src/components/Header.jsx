@@ -17,7 +17,7 @@ export default function Header({
         <div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span className="brand-title">QuizBeat</span>
-            <span className="brand-badge">QUIZ</span>
+            <span className="brand-badge">OLDIES</span>
           </div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '1px' }}>
             {activePackName || 'Музыкальный квиз'}
