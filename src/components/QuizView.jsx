@@ -10,12 +10,12 @@ import {
   Clock, 
   Sparkles,
   Eye,
-  Radio,
-  Flame,
-  Volume2
+  Shuffle,
+  Volume2,
+  Trophy
 } from 'lucide-react';
 import { soundFx } from '../services/soundFx';
-import { previewPlayer } from '../services/previewService';
+import { previewPlayer, shuffleArray } from '../services/previewService';
 import { spotifyPlayer } from '../services/spotify';
 
 export default function QuizView({
@@ -29,39 +29,59 @@ export default function QuizView({
   streak,
   onRecordAnswer
 }) {
-  // Default to 'flashcards' as requested by the user
   const [subMode, setSubMode] = useState('flashcards'); // 'flashcards' | 'buzzer' | 'options'
+  
+  // Local shuffled playlist so every game session is random without repeating songs
+  const [shuffledDeck, setShuffledDeck] = useState(() => shuffleArray(tracks));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [timeLeft, setTimeLeft] = useState(fragmentDuration);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Pinned track info for the back face of the card to prevent spoiler leak
+  const [displayedBackTrack, setDisplayedBackTrack] = useState(null);
+
+  // Pack completion state
+  const [isPackCompleted, setIsPackCompleted] = useState(false);
+
+  // Options submode state
   const [hasAnswered, setHasAnswered] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
   const [options, setOptions] = useState([]);
 
-  // Buzzer mode specific state
+  // Buzzer submode state
   const [buzzerPressed, setBuzzerPressed] = useState(false);
   const [buzzerCountdown, setBuzzerCountdown] = useState(5);
 
   const timerIntervalRef = useRef(null);
   const buzzerIntervalRef = useRef(null);
 
-  const currentTrack = tracks[currentIndex] || null;
-
-  // Whenever track changes, reset and autoplay
+  // When parent tracks array changes (e.g. user selected another pack), re-shuffle
   useEffect(() => {
-    if (!currentTrack || tracks.length === 0) return;
+    if (tracks && tracks.length > 0) {
+      setShuffledDeck(shuffleArray(tracks));
+      setCurrentIndex(0);
+      setIsPackCompleted(false);
+      setIsFlipped(false);
+      setDisplayedBackTrack(null);
+    }
+  }, [tracks]);
 
-    // Pick 3 distractors for the optional 'options' submode
-    const otherTracks = tracks.filter(t => t.id !== currentTrack.id);
-    const shuffledOthers = [...otherTracks].sort(() => 0.5 - Math.random());
+  const currentTrack = shuffledDeck[currentIndex] || null;
+
+  // Whenever currentIndex or deck changes, reset states and autoplay
+  useEffect(() => {
+    if (!currentTrack || isPackCompleted) return;
+
+    // Pick 3 distractors for the optional test mode
+    const otherTracks = shuffledDeck.filter(t => t.id !== currentTrack.id);
+    const shuffledOthers = shuffleArray(otherTracks);
     const distractors = shuffledOthers.slice(0, Math.min(3, shuffledOthers.length));
-    const combined = [currentTrack, ...distractors].sort(() => 0.5 - Math.random());
-    setOptions(combined);
+    setOptions(shuffleArray([currentTrack, ...distractors]));
 
     // Reset round states
-    setIsFlipped(false);
     setHasAnswered(false);
     setSelectedOption(null);
     setIsCorrect(false);
@@ -69,18 +89,18 @@ export default function QuizView({
     setTimeLeft(fragmentDuration);
     stopAudio();
 
-    // Autoplay current track
+    // Start playback after brief delay
     const autoPlayTimer = setTimeout(() => {
       startPlayback(currentTrack);
-    }, 350);
+    }, 300);
 
     return () => {
       clearTimeout(autoPlayTimer);
       stopAudio();
     };
-  }, [currentIndex, tracks, fragmentDuration]);
+  }, [currentIndex, shuffledDeck, fragmentDuration, isPackCompleted]);
 
-  // Handle timer tick while playing
+  // Timer countdown while playing
   useEffect(() => {
     if (isPlaying && timeLeft > 0) {
       timerIntervalRef.current = setInterval(() => {
@@ -100,7 +120,7 @@ export default function QuizView({
     return () => clearInterval(timerIntervalRef.current);
   }, [isPlaying, timeLeft]);
 
-  // Buzzer countdown
+  // Buzzer 5s countdown
   useEffect(() => {
     if (buzzerPressed && buzzerCountdown > 0) {
       buzzerIntervalRef.current = setInterval(() => {
@@ -153,40 +173,64 @@ export default function QuizView({
     startPlayback(currentTrack);
   };
 
+  // Turn card over to reveal answer
   const handleFlipCard = () => {
+    if (isTransitioning) return;
     soundFx.playClick();
+    // Pin currentTrack to displayedBackTrack so it cannot change during animations
+    setDisplayedBackTrack(currentTrack);
     setIsFlipped(true);
     stopAudio();
   };
 
-  // FLASHCARD: User evaluates whether they knew the song
-  const handleCardResult = (knewIt) => {
+  // Transition to next track cleanly:
+  // 1. Flip card back FIRST
+  // 2. Wait for 350ms animation
+  // 3. ONLY THEN advance currentIndex
+  // This completely eliminates the spoiler leak bug!
+  const advanceToNext = () => {
+    setIsTransitioning(true);
+    setIsFlipped(false); // Flip back to front
     stopAudio();
+
+    setTimeout(() => {
+      if (currentIndex < shuffledDeck.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+      } else {
+        setIsPackCompleted(true);
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+      }
+      setDisplayedBackTrack(null);
+      setIsTransitioning(false);
+    }, 380); // Wait for 3D flip animation to finish
+  };
+
+  // Card Result: user evaluates themselves
+  const handleCardResult = (knewIt) => {
+    if (isTransitioning) return;
     if (knewIt) {
       soundFx.playCorrect();
       onRecordAnswer(true, currentTrack);
       if (streak + 1 >= 3) {
-        confetti({
-          particleCount: 65,
-          spread: 60,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 65, spread: 60, origin: { y: 0.6 } });
       }
     } else {
       soundFx.playWrong();
       onRecordAnswer(false, currentTrack);
       onAddWeakTrack(currentTrack);
     }
-    handleNextTrack();
+    advanceToNext();
   };
 
-  const handleNextTrack = () => {
+  // Manual re-shuffle button
+  const handleManualReshuffle = () => {
     soundFx.playClick();
-    if (currentIndex < tracks.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      setCurrentIndex(0);
-    }
+    stopAudio();
+    setIsFlipped(false);
+    setDisplayedBackTrack(null);
+    setIsPackCompleted(false);
+    setShuffledDeck(shuffleArray(tracks));
+    setCurrentIndex(0);
   };
 
   // Options mode click
@@ -212,7 +256,7 @@ export default function QuizView({
     }
   };
 
-  // Buzzer mode press
+  // Buzzer mode
   const handleBuzzerPress = () => {
     if (hasAnswered || buzzerPressed) return;
     soundFx.playBuzzer();
@@ -234,29 +278,52 @@ export default function QuizView({
     }
   };
 
-  if (!currentTrack) {
+  if (!currentTrack || isPackCompleted) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <HelpCircle size={48} color="var(--accent-purple)" style={{ marginBottom: 16 }} />
-        <h3>В этом плейлисте нет треков</h3>
-        <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>
-          Выберите другой плейлист во вкладке «Плейлисты».
+      <div style={{ textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{
+          width: 80,
+          height: 80,
+          borderRadius: '50%',
+          background: 'var(--grad-primary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff',
+          boxShadow: 'var(--shadow-neon-purple)',
+          marginBottom: 16
+        }}>
+          <Trophy size={40} />
+        </div>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Пак завершен!</h2>
+        <p style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: '0.9rem', maxWidth: 300, lineHeight: 1.4 }}>
+          Вы прошли все <b>{shuffledDeck.length}</b> треков без единого повтора!
         </p>
+
+        <button 
+          className="action-btn"
+          style={{ marginTop: 24, width: 'auto', padding: '14px 28px' }}
+          onClick={handleManualReshuffle}
+        >
+          <Shuffle size={18} /> Перемешать и начать заново
+        </button>
       </div>
     );
   }
 
   const progressPercent = (timeLeft / fragmentDuration) * 100;
+  // Card back shows displayedBackTrack if pinned, else currentTrack
+  const backTrackData = displayedBackTrack || currentTrack;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-      {/* Mode Switcher: Flashcards is default */}
+      {/* Submode Switcher */}
       <div className="mode-selector">
         <button 
           className={`mode-btn ${subMode === 'flashcards' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setSubMode('flashcards'); }}
         >
-          <span>🃏 Карточки (Тренажер)</span>
+          <span>🃏 Карточки</span>
         </button>
         <button 
           className={`mode-btn ${subMode === 'buzzer' ? 'active' : ''}`}
@@ -272,12 +339,20 @@ export default function QuizView({
         </button>
       </div>
 
-      {/* Top Header: Track Counter & Duration Selector */}
+      {/* Top Header: Progress Counter & Duration & Reshuffle */}
       <div className="quiz-top-info">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700 }}>
-            Трек {currentIndex + 1} из {tracks.length}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: '0.85rem', color: '#c4b5fd', fontWeight: 800 }}>
+            {currentIndex + 1} / {shuffledDeck.length}
           </span>
+          <button 
+            className="icon-button"
+            onClick={handleManualReshuffle}
+            style={{ width: 28, height: 28, borderRadius: 8 }}
+            title="Перемешать треки в случайном порядке"
+          >
+            <Shuffle size={13} />
+          </button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -305,7 +380,7 @@ export default function QuizView({
       </div>
 
       {/* Timer Bar */}
-      <div className="timer-container" style={{ marginBottom: 14 }}>
+      <div className="timer-container" style={{ marginBottom: 12 }}>
         <div 
           className={`timer-fill ${timeLeft <= 2 ? 'danger' : ''}`}
           style={{ width: `${progressPercent}%` }}
@@ -319,8 +394,8 @@ export default function QuizView({
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <div 
             className="flashcard-wrapper" 
-            style={{ height: 320, margin: '6px 0 16px' }}
-            onClick={!isFlipped ? handleFlipCard : undefined}
+            style={{ height: 320, margin: '4px 0 16px' }}
+            onClick={!isFlipped && !isTransitioning ? handleFlipCard : undefined}
           >
             <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
               {/* FRONT: Audio playing & hidden answer */}
@@ -335,7 +410,7 @@ export default function QuizView({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: 14,
+                  marginBottom: 12,
                   position: 'relative'
                 }}>
                   <div className={`vinyl-disc ${isPlaying ? 'spinning' : ''}`} style={{ border: 'none', boxShadow: 'none' }}>
@@ -357,7 +432,7 @@ export default function QuizView({
                 </div>
 
                 {/* Animated Waveform */}
-                <div className="waveform-container" style={{ height: 26, marginBottom: 8 }}>
+                <div className="waveform-container" style={{ height: 24, marginBottom: 6 }}>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                     <div 
                       key={i} 
@@ -367,22 +442,22 @@ export default function QuizView({
                   ))}
                 </div>
 
-                <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+                <div style={{ fontSize: '1.08rem', fontWeight: 800 }}>
                   {isPlaying ? 'Слушайте отрывок...' : 'Отрывок сыгран'}
                 </div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 4, textAlign: 'center', maxWidth: 280 }}>
-                  Вспомните песню и исполнителя вслух, затем переверните карточку
+                  Вспомните песню вслух, затем переверните карточку
                 </div>
 
                 {/* Card Controls */}
-                <div style={{ display: 'flex', gap: 10, marginTop: 14 }} onClick={(e) => e.stopPropagation()}>
+                <div style={{ display: 'flex', gap: 10, marginTop: 12 }} onClick={(e) => e.stopPropagation()}>
                   <button 
                     className="icon-button"
                     onClick={handleReplay}
                     title="Повторить отрывок"
-                    style={{ width: 40, height: 40, borderRadius: '50%' }}
+                    style={{ width: 38, height: 38, borderRadius: '50%' }}
                   >
-                    <RotateCcw size={16} />
+                    <RotateCcw size={15} />
                   </button>
                   <button 
                     className="icon-button"
@@ -391,64 +466,64 @@ export default function QuizView({
                       else startPlayback(currentTrack);
                     }}
                     style={{ 
-                      width: 40, 
-                      height: 40, 
+                      width: 38, 
+                      height: 38, 
                       borderRadius: '50%',
                       background: isPlaying ? 'rgba(239, 68, 68, 0.2)' : 'var(--grad-primary)',
                       color: '#fff',
                       borderColor: 'transparent'
                     }}
                   >
-                    {isPlaying ? <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>❚❚</span> : <Play size={16} fill="#fff" />}
+                    {isPlaying ? <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>❚❚</span> : <Play size={15} fill="#fff" />}
                   </button>
                 </div>
               </div>
 
-              {/* BACK: Revealed Answer */}
+              {/* BACK: Revealed Answer (pinned to backTrackData) */}
               <div className="flashcard-back">
-                {currentTrack.albumArt && (
+                {backTrackData && backTrackData.albumArt && (
                   <img 
-                    src={currentTrack.albumArt} 
+                    src={backTrackData.albumArt} 
                     alt="" 
                     style={{ 
-                      width: 104, 
-                      height: 104, 
-                      borderRadius: 16, 
+                      width: 100, 
+                      height: 100, 
+                      borderRadius: 14, 
                       objectFit: 'cover', 
-                      marginBottom: 12,
+                      marginBottom: 10,
                       boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
                       border: '2px solid rgba(255,255,255,0.1)'
                     }} 
                   />
                 )}
                 <div style={{ 
-                  fontSize: '1.25rem', 
+                  fontSize: '1.2rem', 
                   fontWeight: 900, 
                   textAlign: 'center',
                   lineHeight: 1.25,
-                  maxWidth: '90%'
+                  maxWidth: '92%'
                 }}>
-                  {currentTrack.name}
+                  {backTrackData ? backTrackData.name : ''}
                 </div>
                 <div style={{ 
-                  fontSize: '1.05rem', 
+                  fontSize: '1rem', 
                   color: '#c4b5fd', 
                   fontWeight: 700, 
-                  marginTop: 6,
+                  marginTop: 4,
                   textAlign: 'center'
                 }}>
-                  {currentTrack.artist}
+                  {backTrackData ? backTrackData.artist : ''}
                 </div>
-                {currentTrack.year && (
+                {backTrackData && backTrackData.year && (
                   <div style={{ 
-                    fontSize: '0.82rem', 
+                    fontSize: '0.8rem', 
                     color: 'var(--text-muted)', 
                     marginTop: 6,
                     background: 'rgba(255,255,255,0.06)',
                     padding: '2px 8px',
                     borderRadius: 8
                   }}>
-                    Год выпуска: {currentTrack.year}
+                    Год выпуска: {backTrackData.year}
                   </div>
                 )}
               </div>
@@ -460,6 +535,7 @@ export default function QuizView({
             <button 
               className="action-btn"
               onClick={handleFlipCard}
+              disabled={isTransitioning}
               style={{
                 padding: '16px 20px',
                 fontSize: '1.05rem',
@@ -473,6 +549,7 @@ export default function QuizView({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <button 
                 className="action-btn"
+                disabled={isTransitioning}
                 style={{ 
                   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   boxShadow: '0 0 25px rgba(16, 185, 129, 0.4)',
@@ -487,6 +564,7 @@ export default function QuizView({
 
               <button 
                 className="action-btn"
+                disabled={isTransitioning}
                 style={{ 
                   background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                   boxShadow: '0 0 25px rgba(239, 68, 68, 0.4)',
@@ -504,7 +582,7 @@ export default function QuizView({
       )}
 
       {/* ============================================================ */}
-      {/* MODE 2: BUZZER / PARTY MODE (Кто быстрее назвал трек вслух)  */}
+      {/* MODE 2: BUZZER / PARTY MODE                                  */}
       {/* ============================================================ */}
       {subMode === 'buzzer' && (
         <div className="buzzer-container">
@@ -568,7 +646,7 @@ export default function QuizView({
                     <div style={{ fontSize: '1rem', fontWeight: 800 }}>{currentTrack.name}</div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{currentTrack.artist}</div>
                   </div>
-                  <button className="action-btn" onClick={handleNextTrack} style={{ width: 'auto', padding: '10px 14px' }}>
+                  <button className="action-btn" onClick={advanceToNext} style={{ width: 'auto', padding: '10px 14px' }}>
                     <ArrowRight size={18} />
                   </button>
                 </div>
@@ -579,7 +657,7 @@ export default function QuizView({
       )}
 
       {/* ============================================================ */}
-      {/* MODE 3: 4 OPTIONS (Optional Test Mode)                        */}
+      {/* MODE 3: 4 OPTIONS                                            */}
       {/* ============================================================ */}
       {subMode === 'options' && (
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -642,7 +720,7 @@ export default function QuizView({
                 <div style={{ fontSize: '1rem', fontWeight: 800 }}>{currentTrack.name}</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{currentTrack.artist}</div>
               </div>
-              <button className="action-btn" onClick={handleNextTrack} style={{ width: 'auto', padding: '10px 14px' }}>
+              <button className="action-btn" onClick={advanceToNext} style={{ width: 'auto', padding: '10px 14px' }}>
                 <ArrowRight size={18} />
               </button>
             </div>
