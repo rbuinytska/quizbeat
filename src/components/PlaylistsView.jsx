@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Sparkles, 
@@ -9,11 +9,37 @@ import {
   PlusCircle, 
   Music,
   ArrowRight,
-  ListMusic
+  ListMusic,
+  Trash2,
+  Play,
+  RotateCcw,
+  Zap,
+  Flame,
+  Radio
 } from 'lucide-react';
-import { CURATED_PACKS, PACK_CATEGORIES, searchTracksOnline } from '../services/previewService';
+import { 
+  CURATED_PACKS, 
+  PACK_CATEGORIES, 
+  searchTracksOnline,
+  parseTrackListText,
+  saveCustomPack,
+  getCustomSavedPacks,
+  deleteCustomPack,
+  shuffleArray
+} from '../services/previewService';
 import { fetchPlaylistTracks } from '../services/spotify';
 import { soundFx } from '../services/soundFx';
+
+// Quick Generator Presets (Queries that yield 25-30 instant retro party tracks)
+const PRESET_THEMES = [
+  { id: 'duchon', name: '👑 Karol Duchoň & Slovak Party', query: 'Karol Duchon', emoji: '👑', color: 'from-amber-500 to-red-600', desc: 'Legendary Slovak voice & party classics' },
+  { id: 'elan_team', name: '🇸🇰 Elán & Team Classics', query: 'Elan', emoji: '🇸🇰', color: 'from-blue-600 to-indigo-700', desc: 'The biggest stadium rock hits of Slovakia' },
+  { id: 'czech_gold', name: '🇨🇿 Czech Golden Hits', query: 'Karel Gott', emoji: '🇨🇿', color: 'from-emerald-500 to-teal-700', desc: 'Karel Gott, Michal David, Olympic' },
+  { id: 'disco70s', name: '🕺 Disco 70s Fever', query: 'ABBA', emoji: '🪩', color: 'from-pink-500 to-purple-600', desc: 'ABBA, Boney M, Bee Gees, Chic' },
+  { id: 'rock80s', name: '🎸 80s Arena Rock', query: 'Queen', emoji: '⚡', color: 'from-orange-500 to-red-600', desc: 'Queen, AC/DC, Bon Jovi, Europe' },
+  { id: 'eurodance90s', name: '🎉 90s Eurodance Explosion', query: 'Haddaway', emoji: '🔥', color: 'from-cyan-500 to-blue-600', desc: 'Haddaway, Dr. Alban, Aqua, Eiffel 65' },
+  { id: 'pop2000s', name: '📻 2000s Pop Party', query: 'Britney Spears', emoji: '🎧', color: 'from-purple-500 to-pink-500', desc: 'Britney, Backstreet Boys, Spice Girls' }
+];
 
 export default function PlaylistsView({
   activePackId,
@@ -23,22 +49,71 @@ export default function PlaylistsView({
   onOpenSettings
 }) {
   const [activeTab, setActiveTab] = useState('curated'); // 'curated' | 'search' | 'spotify'
-  const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'slovak' | 'world'
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [customPacks, setCustomPacks] = useState(getCustomSavedPacks);
+
+  // Search tab states
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [customPackName, setCustomPackName] = useState('');
+  const [isGeneratingPreset, setIsGeneratingPreset] = useState(false);
+  const [presetGeneratingName, setPresetGeneratingName] = useState('');
 
-  // Spotify Playlist link input
+  // Spotify / Tracklist importer states
   const [spotifyUrlInput, setSpotifyUrlInput] = useState('');
   const [isImportingSpotify, setIsImportingSpotify] = useState(false);
   const [spotifyImportError, setSpotifyImportError] = useState('');
+  const [textListInput, setTextListInput] = useState('');
+  const [isResolvingText, setIsResolvingText] = useState(false);
+  const [resolveProgress, setResolveProgress] = useState({ current: 0, total: 0, song: '' });
 
-  const filteredPacks = CURATED_PACKS.filter(pack => {
+  // Refresh saved packs
+  const refreshCustomPacks = () => {
+    setCustomPacks(getCustomSavedPacks());
+  };
+
+  // Combine curated + custom packs
+  const allAvailablePacks = [...customPacks, ...CURATED_PACKS];
+
+  const filteredPacks = allAvailablePacks.filter(pack => {
     if (selectedCategory === 'all') return true;
+    if (selectedCategory === 'custom') return pack.isCustom;
     return pack.category === selectedCategory;
   });
 
+  // 1-Click Preset Generator
+  const handleGeneratePreset = async (preset) => {
+    soundFx.playClick();
+    setIsGeneratingPreset(true);
+    setPresetGeneratingName(preset.name);
+    try {
+      const results = await searchTracksOnline(preset.query, 'sk', 35);
+      if (results.length < 2) {
+        alert('Could not find enough tracks for this preset');
+        return;
+      }
+      const newPack = {
+        id: `preset_${preset.id}_${Date.now()}`,
+        isCustom: true,
+        name: preset.name,
+        subtitle: `${results.length} dynamic tracks`,
+        emoji: preset.emoji,
+        tracks: shuffleArray(results)
+      };
+      saveCustomPack(newPack);
+      refreshCustomPacks();
+      onSelectPack(newPack);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to generate preset pack: ' + e.message);
+    } finally {
+      setIsGeneratingPreset(false);
+      setPresetGeneratingName('');
+    }
+  };
+
+  // Online Search
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -46,9 +121,9 @@ export default function PlaylistsView({
     soundFx.playClick();
     setIsSearching(true);
     try {
-      const results = await searchTracksOnline(searchQuery);
+      const results = await searchTracksOnline(searchQuery.trim(), 'sk', 35);
       setSearchResults(results);
-      setCustomPackName(`Search: "${searchQuery}"`);
+      setCustomPackName(`Hits: ${searchQuery.trim()}`);
     } catch (err) {
       console.error(err);
     } finally {
@@ -56,17 +131,26 @@ export default function PlaylistsView({
     }
   };
 
-  const handleCreateSearchPack = () => {
+  // Create Pack from Search
+  const handlePlaySearchPack = (save = false) => {
     if (searchResults.length < 2) return;
     soundFx.playClick();
-    onSelectPack({
-      id: `custom_search_${Date.now()}`,
-      name: customPackName || 'Custom Pack',
-      subtitle: `${searchResults.length} tracks to practice`,
+    const newPack = {
+      id: `search_${Date.now()}`,
+      isCustom: true,
+      name: customPackName || `Pack: ${searchQuery}`,
+      subtitle: `${searchResults.length} online tracks`,
+      emoji: '🔍',
       tracks: searchResults
-    });
+    };
+    if (save) {
+      saveCustomPack(newPack);
+      refreshCustomPacks();
+    }
+    onSelectPack(newPack);
   };
 
+  // Spotify URL Importer
   const handleImportSpotifyUrl = async (e) => {
     e.preventDefault();
     if (!spotifyUrlInput.trim()) return;
@@ -85,17 +169,65 @@ export default function PlaylistsView({
         return;
       }
       soundFx.playClick();
-      onSelectPack({
+      const newPack = {
         id: `spotify_${Date.now()}`,
+        isCustom: true,
         name: `Spotify: ${result.playlistName}`,
-        subtitle: `${result.tracks.length} tracks from your Spotify`,
+        subtitle: `${result.tracks.length} tracks from Spotify`,
+        emoji: '🎧',
         tracks: result.tracks
-      });
+      };
+      saveCustomPack(newPack);
+      refreshCustomPacks();
+      onSelectPack(newPack);
     } catch (err) {
       setSpotifyImportError(err.message || 'Failed to load playlist');
     } finally {
       setIsImportingSpotify(false);
     }
+  };
+
+  // Text/Tracklist Importer
+  const handleImportTextList = async () => {
+    if (!textListInput.trim()) return;
+    soundFx.playClick();
+    setIsResolvingText(true);
+    try {
+      const resolved = await parseTrackListText(textListInput, (current, total, song) => {
+        setResolveProgress({ current, total, song });
+      });
+
+      if (resolved.length < 2) {
+        alert('Could not match enough playable songs from your list. Make sure each line has "Artist - Song".');
+        return;
+      }
+
+      const newPack = {
+        id: `text_pack_${Date.now()}`,
+        isCustom: true,
+        name: `Custom Playlist (${resolved.length} Songs)`,
+        subtitle: `Imported song list with audio previews`,
+        emoji: '🎵',
+        tracks: shuffleArray(resolved)
+      };
+      saveCustomPack(newPack);
+      refreshCustomPacks();
+      setTextListInput('');
+      onSelectPack(newPack);
+    } catch (err) {
+      console.error(err);
+      alert('Error importing tracklist: ' + err.message);
+    } finally {
+      setIsResolvingText(false);
+      setResolveProgress({ current: 0, total: 0, song: '' });
+    }
+  };
+
+  const handleDeleteCustomPack = (e, packId) => {
+    e.stopPropagation();
+    soundFx.playClick();
+    deleteCustomPack(packId);
+    refreshCustomPacks();
   };
 
   return (
@@ -106,7 +238,7 @@ export default function PlaylistsView({
           className={`mode-btn ${activeTab === 'curated' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setActiveTab('curated'); }}
         >
-          <span>🔥 Featured Packs</span>
+          <span>🔥 Playlists & Packs</span>
         </button>
         <button 
           className={`mode-btn ${activeTab === 'search' ? 'active' : ''}`}
@@ -118,16 +250,87 @@ export default function PlaylistsView({
           className={`mode-btn ${activeTab === 'spotify' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setActiveTab('spotify'); }}
         >
-          <span>🎧 Spotify</span>
+          <span>🎧 Spotify / Import</span>
         </button>
       </div>
 
-      {/* TAB 1: Curated Packs with Category Filter */}
+      {/* ============================================================ */}
+      {/* TAB 1: CURATED PACKS & CUSTOM PACKS & QUICK PRESET GENERATORS */}
+      {/* ============================================================ */}
       {activeTab === 'curated' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Quick 1-Click Generator Presets */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <Zap size={16} color="var(--accent-glow)" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>
+                Quick Instant Packs (1-Click Generator)
+              </span>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              gap: 8,
+              overflowX: 'auto',
+              paddingBottom: 6,
+              scrollbarWidth: 'none'
+            }}>
+              {PRESET_THEMES.map(preset => (
+                <button
+                  key={preset.id}
+                  onClick={() => handleGeneratePreset(preset)}
+                  disabled={isGeneratingPreset}
+                  style={{
+                    background: 'var(--bg-surface-elevated)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '8px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    transition: 'all 0.18s ease'
+                  }}
+                >
+                  <span style={{ fontSize: '1.2rem' }}>{preset.emoji}</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fff' }}>
+                      {preset.name}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                      Instant 30 tracks
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {isGeneratingPreset && (
+              <div style={{
+                marginTop: 6,
+                padding: '8px 12px',
+                background: 'rgba(139, 92, 246, 0.15)',
+                border: '1px solid var(--border-glow)',
+                borderRadius: 8,
+                fontSize: '0.82rem',
+                color: '#c4b5fd',
+                textAlign: 'center'
+              }}>
+                ⏳ Generating pack for <strong>{presetGeneratingName}</strong>... Finding audio previews...
+              </div>
+            )}
+          </div>
+
           {/* Category Filter Pills */}
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
-            {PACK_CATEGORIES.map(cat => (
+            {[
+              { id: 'all', name: 'All Packs' },
+              { id: 'custom', name: `⭐ My Packs (${customPacks.length})` },
+              { id: 'slovak', name: '🇸🇰 Slovak Oldies' },
+              { id: 'world', name: '🌍 World Hits' }
+            ].map(cat => (
               <button
                 key={cat.id}
                 onClick={() => { soundFx.playClick(); setSelectedCategory(cat.id); }}
@@ -162,11 +365,12 @@ export default function PlaylistsView({
                     soundFx.playClick();
                     onSelectPack(pack);
                   }}
+                  style={{ position: 'relative' }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 0 }}>
                     <div style={{
-                      width: 48,
-                      height: 48,
+                      width: 46,
+                      height: 46,
                       borderRadius: 14,
                       background: 'var(--bg-surface)',
                       display: 'flex',
@@ -174,24 +378,42 @@ export default function PlaylistsView({
                       justifyContent: 'center',
                       fontSize: '1.5rem',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                      border: '1px solid var(--border-subtle)'
+                      border: '1px solid var(--border-subtle)',
+                      flexShrink: 0
                     }}>
-                      {pack.emoji}
+                      {pack.emoji || '🎵'}
                     </div>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '0.96rem', color: '#fff' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, fontSize: '0.94rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {pack.name}
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.3 }}>
+                      <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {pack.subtitle}
                       </div>
-                      <div style={{ fontSize: '0.72rem', color: '#c4b5fd', marginTop: 4, fontWeight: 700 }}>
-                        {pack.tracks.length} tracks
+                      <div style={{ fontSize: '0.72rem', color: '#c4b5fd', marginTop: 3, fontWeight: 700 }}>
+                        {pack.tracks.length} tracks {pack.isCustom ? '• Custom Pack' : ''}
                       </div>
                     </div>
                   </div>
 
-                  {isActive && <CheckCircle2 size={22} color="var(--accent-purple)" />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                    {pack.isCustom && (
+                      <button
+                        onClick={(e) => handleDeleteCustomPack(e, pack.id)}
+                        title="Delete custom pack"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#ef4444',
+                          cursor: 'pointer',
+                          padding: 4
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                    {isActive && <CheckCircle2 size={22} color="var(--accent-purple)" />}
+                  </div>
                 </div>
               );
             })}
@@ -199,14 +421,16 @@ export default function PlaylistsView({
         </div>
       )}
 
-      {/* TAB 2: Online Search (iTunes preview engine with SK prioritizing) */}
+      {/* ============================================================ */}
+      {/* TAB 2: ONLINE SEARCH & BUILDER (CORS-free JSONP)              */}
+      {/* ============================================================ */}
       {activeTab === 'search' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
             <input 
               type="text" 
               className="input-field"
-              placeholder="E.g. Elán, Karol Duchoň, ABBA, Queen..."
+              placeholder="E.g. Queen, Karol Duchoň, Elán, ABBA, 80s Rock..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -224,26 +448,35 @@ export default function PlaylistsView({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                  Found: {searchResults.length} tracks
+                  Found: <strong>{searchResults.length}</strong> playable tracks
                 </span>
-                <button 
-                  className="action-btn"
-                  style={{ width: 'auto', padding: '8px 14px', fontSize: '0.85rem' }}
-                  onClick={handleCreateSearchPack}
-                >
-                  <PlusCircle size={16} /> Practice This Pack
-                </button>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button 
+                    className="action-btn"
+                    style={{ width: 'auto', padding: '8px 12px', fontSize: '0.82rem' }}
+                    onClick={() => handlePlaySearchPack(false)}
+                  >
+                    <Play size={14} /> Play Now
+                  </button>
+                  <button 
+                    className="btn-secondary"
+                    style={{ width: 'auto', padding: '8px 12px', fontSize: '0.82rem' }}
+                    onClick={() => handlePlaySearchPack(true)}
+                  >
+                    <PlusCircle size={14} /> Save & Play
+                  </button>
+                </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {searchResults.slice(0, 8).map(track => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 380, overflowY: 'auto' }}>
+                {searchResults.map(track => (
                   <div 
                     key={track.id}
                     style={{
                       background: 'var(--bg-surface-elevated)',
                       border: '1px solid var(--border-subtle)',
                       borderRadius: 12,
-                      padding: '10px 12px',
+                      padding: '8px 12px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12
@@ -270,122 +503,163 @@ export default function PlaylistsView({
         </div>
       )}
 
-      {/* TAB 3: Spotify Playlists */}
+      {/* ============================================================ */}
+      {/* TAB 3: SPOTIFY & SONG LIST IMPORTER                           */}
+      {/* ============================================================ */}
       {activeTab === 'spotify' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {!isSpotifyConnected ? (
-            <div style={{
-              background: 'rgba(29, 185, 84, 0.08)',
-              border: '1px solid rgba(29, 185, 84, 0.3)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                width: 52,
-                height: 52,
-                borderRadius: '50%',
-                background: 'var(--accent-spotify)',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 12px'
-              }}>
-                <Disc size={26} />
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Connect Spotify Premium</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.4 }}>
-                Import any playlists of Slovak and global retro hits directly from your personal Spotify library.
-              </p>
-              <button 
-                className="action-btn"
-                style={{ 
-                  background: 'var(--grad-spotify)', 
-                  marginTop: 16,
-                  boxShadow: 'var(--shadow-neon-green)'
-                }}
-                onClick={onOpenSettings}
-              >
-                Configure Spotify Login
-              </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Method 1: Paste Tracklist from Spotify / Notes */}
+          <div style={{
+            background: 'var(--bg-surface-elevated)',
+            border: '1px solid var(--border-glow)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '16px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <ListMusic size={18} color="var(--accent-glow)" />
+              <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff' }}>
+                Paste Tracklist from Spotify or Notes
+              </span>
             </div>
-          ) : (
-            <div>
-              <form onSubmit={handleImportSpotifyUrl} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                  Paste a link to any Spotify playlist:
-                </label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input 
-                    type="text" 
-                    className="input-field"
-                    placeholder="https://open.spotify.com/playlist/..."
-                    value={spotifyUrlInput}
-                    onChange={(e) => setSpotifyUrlInput(e.target.value)}
-                  />
-                  <button 
-                    type="submit" 
-                    className="action-btn"
-                    style={{ width: 'auto', padding: '0 18px', background: 'var(--grad-spotify)' }}
-                    disabled={isImportingSpotify}
-                  >
-                    {isImportingSpotify ? '...' : <ArrowRight size={18} />}
-                  </button>
-                </div>
-                {spotifyImportError && (
-                  <div style={{ color: '#f87171', fontSize: '0.8rem' }}>
-                    {spotifyImportError}
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
+              Copy song titles or artist names from any Spotify playlist or text notes (one song per line):
+            </p>
+
+            <textarea 
+              rows={4}
+              className="input-field"
+              style={{ width: '100%', resize: 'vertical', fontFamily: 'monospace', fontSize: '0.8rem', padding: '8px 10px' }}
+              placeholder={`Queen - Bohemian Rhapsody\nABBA - Dancing Queen\nKarol Duchoň - Čardáš dvoch sŕdc\nElán - Zaľúbil sa chlapec\nMichael Jackson - Billie Jean`}
+              value={textListInput}
+              onChange={(e) => setTextListInput(e.target.value)}
+              disabled={isResolvingText}
+            />
+
+            {isResolvingText && (
+              <div style={{ marginTop: 8, padding: '8px', background: 'rgba(139, 92, 246, 0.15)', borderRadius: 8, fontSize: '0.8rem', color: '#c4b5fd' }}>
+                🔍 Matching song {resolveProgress.current} of {resolveProgress.total}: <em>{resolveProgress.song}</em>...
+              </div>
+            )}
+
+            <button 
+              className="action-btn"
+              onClick={handleImportTextList}
+              disabled={isResolvingText || !textListInput.trim()}
+              style={{ marginTop: 10 }}
+            >
+              <Sparkles size={16} /> Generate Quiz Pack with Audio Previews
+            </button>
+          </div>
+
+          {/* Method 2: Spotify URL / Connect */}
+          <div style={{
+            background: 'rgba(29, 185, 84, 0.08)',
+            border: '1px solid rgba(29, 185, 84, 0.3)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '16px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <Disc size={18} color="var(--accent-spotify)" />
+              <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff' }}>
+                Direct Spotify Account Link
+              </span>
+            </div>
+
+            {!isSpotifyConnected ? (
+              <div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: 12 }}>
+                  Log in with your Spotify account to load your private and public playlists directly.
+                </p>
+                <button 
+                  className="action-btn"
+                  style={{ background: 'var(--grad-spotify)', boxShadow: 'var(--shadow-neon-green)' }}
+                  onClick={onOpenSettings}
+                >
+                  Connect Spotify Account
+                </button>
+              </div>
+            ) : (
+              <div>
+                <form onSubmit={handleImportSpotifyUrl} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                    Paste Spotify playlist link:
+                  </label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input 
+                      type="text" 
+                      className="input-field"
+                      placeholder="https://open.spotify.com/playlist/..."
+                      value={spotifyUrlInput}
+                      onChange={(e) => setSpotifyUrlInput(e.target.value)}
+                    />
+                    <button 
+                      type="submit" 
+                      className="action-btn"
+                      style={{ width: 'auto', padding: '0 16px', background: 'var(--grad-spotify)' }}
+                      disabled={isImportingSpotify}
+                    >
+                      {isImportingSpotify ? '...' : <ArrowRight size={18} />}
+                    </button>
+                  </div>
+                  {spotifyImportError && (
+                    <div style={{ color: '#f87171', fontSize: '0.8rem' }}>
+                      {spotifyImportError}
+                    </div>
+                  )}
+                </form>
+
+                {userSpotifyPlaylists.length > 0 && (
+                  <div style={{ marginTop: 14 }}>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>
+                      Your Playlists:
+                    </div>
+                    <div className="packs-grid">
+                      {userSpotifyPlaylists.map(pl => (
+                        <div 
+                          key={pl.id}
+                          className="pack-card"
+                          onClick={async () => {
+                            soundFx.playClick();
+                            try {
+                              const res = await fetchPlaylistTracks(pl.id);
+                              const newPack = {
+                                id: `spotify_${pl.id}`,
+                                isCustom: true,
+                                name: pl.name,
+                                subtitle: `${res.tracks.length} tracks`,
+                                emoji: '🎧',
+                                tracks: res.tracks
+                              };
+                              saveCustomPack(newPack);
+                              refreshCustomPacks();
+                              onSelectPack(newPack);
+                            } catch (e) {
+                              alert(e.message);
+                            }
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            {pl.image ? (
+                              <img src={pl.image} alt="" style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: 42, height: 42, borderRadius: 10, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <ListMusic size={18} />
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{pl.name}</div>
+                              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{pl.tracksCount} tracks</div>
+                            </div>
+                          </div>
+                          <ArrowRight size={16} color="var(--text-muted)" />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
-              </form>
-
-              {userSpotifyPlaylists.length > 0 && (
-                <div style={{ marginTop: 20 }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 10 }}>
-                    Your Playlists:
-                  </div>
-                  <div className="packs-grid">
-                    {userSpotifyPlaylists.map(pl => (
-                      <div 
-                        key={pl.id}
-                        className="pack-card"
-                        onClick={async () => {
-                          soundFx.playClick();
-                          try {
-                            const res = await fetchPlaylistTracks(pl.id);
-                            onSelectPack({
-                              id: `spotify_${pl.id}`,
-                              name: pl.name,
-                              subtitle: `${res.tracks.length} tracks`,
-                              tracks: res.tracks
-                            });
-                          } catch (e) {
-                            alert(e.message);
-                          }
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          {pl.image ? (
-                            <img src={pl.image} alt="" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover' }} />
-                          ) : (
-                            <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <ListMusic size={20} />
-                            </div>
-                          )}
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{pl.name}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{pl.tracksCount} tracks</div>
-                          </div>
-                        </div>
-                        <ArrowRight size={18} color="var(--text-muted)" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

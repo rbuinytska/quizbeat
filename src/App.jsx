@@ -194,6 +194,7 @@ export default function App() {
               fragmentDuration={fragmentDuration}
               onDurationChange={handleDurationChange}
               onStartGame={handleStartGame}
+              onOpenPlaylists={() => setActiveTab('packs')}
             />
           ) : (
             <QuizView 

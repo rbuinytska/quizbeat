@@ -73,36 +73,143 @@ export const CURATED_PACKS = [
   }
 ];
 
-// Search songs using Apple iTunes Search API (country=SK prioritizing Slovak/local catalogue)
-export async function searchTracksOnline(query) {
+// JSONP Fetcher to bypass CORS in all browsers without server/proxy
+export function fetchJsonp(url, timeoutMs = 8000) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'itunes_jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+    const script = document.createElement('script');
+    const separator = url.includes('?') ? '&' : '?';
+    script.src = `${url}${separator}callback=${callbackName}`;
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Request timed out'));
+    }, timeoutMs);
+
+    function cleanup() {
+      clearTimeout(timer);
+      if (window[callbackName]) {
+        delete window[callbackName];
+      }
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    }
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = (err) => {
+      cleanup();
+      reject(err);
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+// Search songs using Apple iTunes Search API via JSONP (prioritizes SK, falls back to US/Global)
+export async function searchTracksOnline(query, country = 'sk', limit = 30) {
   if (!query || query.trim().length === 0) return [];
 
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=sk&media=music&entity=song&limit=30`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to search tracks');
+  try {
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=${country}&media=music&entity=song&limit=${limit}`;
+    const data = await fetchJsonp(url);
+    let results = data.results || [];
 
-  const data = await res.json();
-  let results = data.results || [];
-
-  if (results.length === 0) {
-    const globalRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=30`);
-    if (globalRes.ok) {
-      const gData = await globalRes.json();
+    if (results.length === 0 && country !== 'us') {
+      const globalUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=us&media=music&entity=song&limit=${limit}`;
+      const gData = await fetchJsonp(globalUrl);
       results = gData.results || [];
     }
-  }
 
-  return results
-    .filter(item => item.previewUrl)
-    .map(item => ({
-      id: `itunes_${item.trackId}`,
-      name: item.trackName,
-      artist: item.artistName,
-      albumArt: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
-      year: item.releaseDate ? item.releaseDate.substring(0, 4) : '—',
-      audioUrl: item.previewUrl,
-      source: 'preview'
-    }));
+    return results
+      .filter(item => item.previewUrl)
+      .map(item => ({
+        id: `itunes_${item.trackId}`,
+        name: item.trackName,
+        artist: item.artistName,
+        albumArt: (item.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+        year: item.releaseDate ? item.releaseDate.substring(0, 4) : '—',
+        audioUrl: item.previewUrl,
+        source: 'preview'
+      }));
+  } catch (err) {
+    console.error('searchTracksOnline error:', err);
+    return [];
+  }
+}
+
+// Resolve a single song name or "Artist - Title" query to a playable track
+export async function resolveTrackFromQuery(query) {
+  if (!query || query.trim().length === 0) return null;
+  const results = await searchTracksOnline(query, 'sk', 3);
+  if (results && results.length > 0) return results[0];
+  const globalResults = await searchTracksOnline(query, 'us', 3);
+  return globalResults && globalResults.length > 0 ? globalResults[0] : null;
+}
+
+// Parse multi-line text tracklist (e.g. copied from Spotify, text or playlist)
+export async function parseTrackListText(text, onProgress) {
+  const lines = text
+    .split('\n')
+    .map(line => line.replace(/^[\d+.\-–—\s*]+/, '').trim())
+    .filter(line => line.length > 2);
+
+  const tracks = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (onProgress) onProgress(i + 1, lines.length, line);
+    try {
+      const track = await resolveTrackFromQuery(line);
+      if (track) {
+        // avoid duplicates
+        if (!tracks.some(t => t.id === track.id)) {
+          tracks.push(track);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to resolve line:', line, e);
+    }
+  }
+  return tracks;
+}
+
+// LocalStorage helpers for user-saved custom packs
+const CUSTOM_PACKS_KEY = 'quizbeat_custom_packs';
+
+export function getCustomSavedPacks() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_PACKS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCustomPack(pack) {
+  try {
+    const existing = getCustomSavedPacks();
+    const updated = [pack, ...existing.filter(p => p.id !== pack.id)];
+    localStorage.setItem(CUSTOM_PACKS_KEY, JSON.stringify(updated));
+    return updated;
+  } catch (e) {
+    console.error('saveCustomPack error:', e);
+    return [];
+  }
+}
+
+export function deleteCustomPack(packId) {
+  try {
+    const existing = getCustomSavedPacks();
+    const updated = existing.filter(p => p.id !== packId);
+    localStorage.setItem(CUSTOM_PACKS_KEY, JSON.stringify(updated));
+    return updated;
+  } catch {
+    return [];
+  }
 }
 
 // HTML5 Audio Controller for 30s previews

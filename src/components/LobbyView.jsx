@@ -13,7 +13,7 @@ import {
   Layers,
   HelpCircle
 } from 'lucide-react';
-import { CURATED_PACKS } from '../services/previewService';
+import { CURATED_PACKS, getCustomSavedPacks } from '../services/previewService';
 import { soundFx } from '../services/soundFx';
 
 const SONG_COUNT_OPTIONS = [
@@ -44,16 +44,20 @@ export default function LobbyView({
   initialPack,
   fragmentDuration,
   onDurationChange,
-  onStartGame
+  onStartGame,
+  onOpenPlaylists
 }) {
-  const [selectedPackId, setSelectedPackId] = useState(initialPack?.id || CURATED_PACKS[0].id);
+  const customPacks = getCustomSavedPacks();
+  const allPacks = [...customPacks, ...CURATED_PACKS];
+
+  const [selectedPackId, setSelectedPackId] = useState(initialPack?.id || allPacks[0].id);
   const [songCount, setSongCount] = useState(20); // 10, 20, 30, or 'all'
   const [selectedMode, setSelectedMode] = useState('flashcards');
   const [isEditingNick, setIsEditingNick] = useState(false);
   const [nickInput, setNickInput] = useState(playerProfile.nickname || 'Player');
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
-  const selectedPack = CURATED_PACKS.find(p => p.id === selectedPackId) || CURATED_PACKS[0];
+  const selectedPack = allPacks.find(p => p.id === selectedPackId) || allPacks[0];
 
   const handleSaveNick = (e) => {
     e.preventDefault();
@@ -229,7 +233,7 @@ export default function LobbyView({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {CURATED_PACKS.map(pack => {
+          {allPacks.map(pack => {
             const isSelected = pack.id === selectedPackId;
             return (
               <div
@@ -263,7 +267,7 @@ export default function LobbyView({
                     fontSize: '1.4rem',
                     flexShrink: 0
                   }}>
-                    {pack.emoji}
+                    {pack.emoji || '🎵'}
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -290,6 +294,32 @@ export default function LobbyView({
               </div>
             );
           })}
+
+          {onOpenPlaylists && (
+            <button
+              onClick={() => { soundFx.playClick(); onOpenPlaylists(); }}
+              style={{
+                marginTop: 4,
+                width: '100%',
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(236, 72, 153, 0.12))',
+                border: '1px dashed var(--accent-purple)',
+                borderRadius: 'var(--radius-md)',
+                padding: '12px 14px',
+                color: '#c4b5fd',
+                fontSize: '0.86rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Sparkles size={16} />
+              <span>+ Import Spotify Playlist or Search Artists</span>
+            </button>
+          )}
         </div>
       </div>
 
