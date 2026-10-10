@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gamepad2, Disc3, AlertCircle, Settings } from 'lucide-react';
+import { Gamepad2, Disc3, Trophy, AlertCircle, Settings } from 'lucide-react';
 
 export default function Navigation({ activeTab, onTabChange, weakTracksCount }) {
   return (
@@ -8,7 +8,7 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         className={`nav-tab ${activeTab === 'quiz' ? 'active' : ''}`}
         onClick={() => onTabChange('quiz')}
       >
-        <Gamepad2 size={22} />
+        <Gamepad2 size={21} />
         <span>Игра</span>
       </button>
 
@@ -16,15 +16,23 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         className={`nav-tab ${activeTab === 'packs' ? 'active' : ''}`}
         onClick={() => onTabChange('packs')}
       >
-        <Disc3 size={22} />
+        <Disc3 size={21} />
         <span>Плейлисты</span>
+      </button>
+
+      <button 
+        className={`nav-tab ${activeTab === 'leaderboard' ? 'active' : ''}`}
+        onClick={() => onTabChange('leaderboard')}
+      >
+        <Trophy size={21} />
+        <span>Лидеры</span>
       </button>
 
       <button 
         className={`nav-tab ${activeTab === 'weak' ? 'active' : ''}`}
         onClick={() => onTabChange('weak')}
       >
-        <AlertCircle size={22} />
+        <AlertCircle size={21} />
         <span>Ошибки</span>
         {weakTracksCount > 0 && (
           <span className="nav-badge">{weakTracksCount}</span>
@@ -35,7 +43,7 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         className={`nav-tab ${activeTab === 'settings' ? 'active' : ''}`}
         onClick={() => onTabChange('settings')}
       >
-        <Settings size={22} />
+        <Settings size={21} />
         <span>Настройки</span>
       </button>
     </nav>

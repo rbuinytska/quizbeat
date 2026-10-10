@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Navigation from './components/Navigation';
 import QuizView from './components/QuizView';
 import PlaylistsView from './components/PlaylistsView';
+import LeaderboardView from './components/LeaderboardView';
 import WeakTracksView from './components/WeakTracksView';
 import SettingsModal from './components/SettingsModal';
 
@@ -14,15 +15,20 @@ import {
   fetchUserPlaylists 
 } from './services/spotify';
 import { soundFx } from './services/soundFx';
+import { 
+  getLocalPlayerProfile, 
+  saveLocalPlayerProfile 
+} from './services/leaderboardService';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('quiz'); // 'quiz' | 'packs' | 'weak' | 'settings'
+  const [activeTab, setActiveTab] = useState('quiz'); // 'quiz' | 'packs' | 'leaderboard' | 'weak' | 'settings'
   const [activePack, setActivePack] = useState(CURATED_PACKS[0]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Stats & Progress
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
+  // Player Profile with Nickname and Cumulative Stats
+  const [playerProfile, setPlayerProfile] = useState(getLocalPlayerProfile);
+
+  // Weak tracks
   const [weakTracks, setWeakTracks] = useState(() => {
     try {
       const saved = localStorage.getItem('quizbeat_weak_tracks');
@@ -93,13 +99,26 @@ export default function App() {
     setActiveTab('quiz');
   };
 
+  // Record Answer: Updates player's nickname profile stats and syncs with Leaderboard
   const handleRecordAnswer = (isCorrect, track) => {
-    if (isCorrect) {
-      setScore(prev => prev + 100 * Math.max(1, streak));
-      setStreak(prev => prev + 1);
-    } else {
-      setStreak(0);
-    }
+    setPlayerProfile(prev => {
+      const currentStreak = prev.currentStreak || 0;
+      const nextStreak = isCorrect ? currentStreak + 1 : 0;
+      const addedPoints = isCorrect ? 100 * Math.max(1, nextStreak) : 0;
+      const nextBestStreak = Math.max(prev.bestStreak || 0, nextStreak);
+
+      const updated = {
+        ...prev,
+        score: (prev.score || 0) + addedPoints,
+        totalGuessed: (prev.totalGuessed || 0) + (isCorrect ? 1 : 0),
+        totalMissed: (prev.totalMissed || 0) + (isCorrect ? 0 : 1),
+        currentStreak: nextStreak,
+        bestStreak: nextBestStreak,
+        lastActive: Date.now()
+      };
+      saveLocalPlayerProfile(updated);
+      return updated;
+    });
   };
 
   const handleDurationChange = (sec) => {
@@ -131,9 +150,8 @@ export default function App() {
     <div className="app-container">
       {/* Top Header */}
       <Header 
-        score={score}
-        streak={streak}
-        isSpotifyConnected={isSpotifyConnected}
+        score={playerProfile.score || 0}
+        streak={playerProfile.currentStreak || 0}
         onOpenSettings={() => setIsSettingsOpen(true)}
         activePackName={activePack.name}
       />
@@ -148,8 +166,8 @@ export default function App() {
             onDurationChange={handleDurationChange}
             isSpotifyConnected={isSpotifyConnected}
             onAddWeakTrack={handleAddWeakTrack}
-            score={score}
-            streak={streak}
+            score={playerProfile.score || 0}
+            streak={playerProfile.currentStreak || 0}
             onRecordAnswer={handleRecordAnswer}
           />
         )}
@@ -161,6 +179,13 @@ export default function App() {
             isSpotifyConnected={isSpotifyConnected}
             userSpotifyPlaylists={userPlaylists}
             onOpenSettings={() => setIsSettingsOpen(true)}
+          />
+        )}
+
+        {activeTab === 'leaderboard' && (
+          <LeaderboardView 
+            playerProfile={playerProfile}
+            onUpdateProfile={setPlayerProfile}
           />
         )}
 
