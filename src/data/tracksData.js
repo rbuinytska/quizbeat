@@ -860,3 +860,307 @@ export const WORLD_TRACKS = [
     "source": "preview"
   }
 ];
+
+// Spotify Oldies Party Mix (Imported from playlist 7KppzMcreAEcAMuhXx5vNh)
+export const SPOTIFY_OLDIES_TRACKS = [
+  {
+    "id": "sp_3BovdzfaX4jb5KFQwoPfAw",
+    "name": "Beat It",
+    "artist": "Michael Jackson",
+    "year": "1982",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/4f/fd/324ffda2-9e51-8f6a-0c2d-c6fd2b41ac55/074643811224.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/05f62bc72e65a0b89b5b7544b4fe6efc2f363061",
+    "spotifyUri": "spotify:track:3BovdzfaX4jb5KFQwoPfAw",
+    "source": "preview"
+  },
+  {
+    "id": "sp_7GVUmCP00eSsqc4tzj1sDD",
+    "name": "Come and Get Your Love",
+    "artist": "Redbone",
+    "year": "1973",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/30/3c/aa/303caaab-ca00-00d5-38bc-566538727080/886446685496.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/beb70a209af1e258ff3af3a01c92cc6a7295c7bb",
+    "spotifyUri": "spotify:track:7GVUmCP00eSsqc4tzj1sDD",
+    "source": "preview"
+  },
+  {
+    "id": "sp_46eu3SBuFCXWsPT39Yg3tJ",
+    "name": "Don't Stop 'Til You Get Enough",
+    "artist": "Michael Jackson",
+    "year": "1979",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/fe/a3/0cfea324-57c1-d530-5248-9bb591bbd7bf/074643574525.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/4cfc5831a30fb9f86107637914818fcf844ddbf5",
+    "spotifyUri": "spotify:track:46eu3SBuFCXWsPT39Yg3tJ",
+    "source": "preview"
+  },
+  {
+    "id": "sp_2tUBqZG2AbRi7Q0BIrVrEj",
+    "name": "I Wanna Dance with Somebody (Who Loves Me)",
+    "artist": "Whitney Houston",
+    "year": "1987",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/86/b5/25/86b525b1-bff1-4bf6-6112-531251b3d672/dj.hthdmusj.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/6d13b049b24af1bef77aa4d366c088c316ca1b65",
+    "spotifyUri": "spotify:track:2tUBqZG2AbRi7Q0BIrVrEj",
+    "source": "preview"
+  },
+  {
+    "id": "sp_4y1LsJpmMti1PfRQV9AWWe",
+    "name": "Girls Just Want to Have Fun",
+    "artist": "Cyndi Lauper",
+    "year": "1983",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8a/8c/13/8a8c13e0-06af-1710-7b7d-ebec65fb8361/074643893022.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/7f0a39e2981e2dcbf75783cef812e7d84726f650",
+    "spotifyUri": "spotify:track:4y1LsJpmMti1PfRQV9AWWe",
+    "source": "preview"
+  },
+  {
+    "id": "sp_6ztstiyZL6FXzh4aG46ZPD",
+    "name": "Boogie Wonderland (with The Emotions)",
+    "artist": "Earth, Wind & Fire, The Emotions",
+    "year": "1979",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5d/66/3b/5d663b1f-dcc9-030d-0cf1-fc5d344d391d/886447618448.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/103a73b9b121a90aaaf719025c76ddcf36a6ef1d",
+    "spotifyUri": "spotify:track:6ztstiyZL6FXzh4aG46ZPD",
+    "source": "preview"
+  },
+  {
+    "id": "sp_7HW5WIw7ZgZORCzUxv5gW5",
+    "name": "Don't Go Breaking My Heart",
+    "artist": "Elton John, Kiki Dee",
+    "year": "1975",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/f9/91/95/f991955f-ff92-1cc7-9279-ca1d81824d93/00731452816320.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/a1ac078e1ebc26f93431ccd9b5eec2c8c6dc2272",
+    "spotifyUri": "spotify:track:7HW5WIw7ZgZORCzUxv5gW5",
+    "source": "preview"
+  },
+  {
+    "id": "sp_5T7ywazdGIydr6JCW6t02j",
+    "name": "Smooth Criminal",
+    "artist": "Michael Jackson",
+    "year": "1987",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Features124/v4/0b/fb/b5/0bfbb592-e2ce-065a-a098-09f55cee22db/dj.iziroksp.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/80995b893ffd82da8c0b2df113b80fc9b5fcec57",
+    "spotifyUri": "spotify:track:5T7ywazdGIydr6JCW6t02j",
+    "source": "preview"
+  },
+  {
+    "id": "sp_7rIovIsXE6kMn629b7kDig",
+    "name": "I Will Survive",
+    "artist": "Gloria Gaynor",
+    "year": "1978",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/33/12/df/3312dfbf-2cd2-e149-1ccb-9688e2a60980/00731454913720.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/a7e45bda989f63279898973fac464e39b64a1134",
+    "spotifyUri": "spotify:track:7rIovIsXE6kMn629b7kDig",
+    "source": "preview"
+  },
+  {
+    "id": "sp_3Cx4yrFaX8CeHwBMReOWXI",
+    "name": "We Didn't Start the Fire",
+    "artist": "Billy Joel",
+    "year": "1989",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/f0/7a/54/f07a54ab-3ebc-6813-e515-86200b8138fc/dj.uthntyfe.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/7a71c92078ca98f37cb3a74dcca65a927f5288c0",
+    "spotifyUri": "spotify:track:3Cx4yrFaX8CeHwBMReOWXI",
+    "source": "preview"
+  },
+  {
+    "id": "sp_3qI94hINNNeb4S7xQi18lS",
+    "name": "Blame It on the Boogie",
+    "artist": "The Jacksons",
+    "year": "1978",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/f790f6441226f16e55a75064289e5eb7a573332d",
+    "spotifyUri": "spotify:track:3qI94hINNNeb4S7xQi18lS",
+    "source": "preview"
+  },
+  {
+    "id": "sp_2gSNBigeWMVtY3QBIvPAEc",
+    "name": "Bad",
+    "artist": "Michael Jackson",
+    "year": "1987",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/5f/28/d55f28f4-610c-ee81-dc16-a01cda46bbc4/886443546264.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/ee488cdb1b62704c5f7e330d4573b852755032ba",
+    "spotifyUri": "spotify:track:2gSNBigeWMVtY3QBIvPAEc",
+    "source": "preview"
+  },
+  {
+    "id": "sp_2TxCwUlqaOH3TIyJqGgR91",
+    "name": "Mamma Mia",
+    "artist": "ABBA",
+    "year": "1975",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/8a/5d/a4/8a5da415-562c-c7f3-0801-2bd251947ac3/14UMGIM07609.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/b578f8867804a1545b49ef6aea52bd0b8ec766d4",
+    "spotifyUri": "spotify:track:2TxCwUlqaOH3TIyJqGgR91",
+    "source": "preview"
+  },
+  {
+    "id": "sp_0hrBpAOgrt8RXigk83LLNE",
+    "name": "The Sign",
+    "artist": "Ace of Base",
+    "year": "1993",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/14/ea/87/14ea87fa-fc85-4b1f-472f-43c3e694ec8c/cover.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/80fb2519938df63631258cfb4908e6a906c15e32",
+    "spotifyUri": "spotify:track:0hrBpAOgrt8RXigk83LLNE",
+    "source": "preview"
+  },
+  {
+    "id": "sp_5LYJ631w9ps5h9tdvac7yP",
+    "name": "Easy Lover",
+    "artist": "Philip Bailey, Phil Collins",
+    "year": "1984",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/00/15/38/001538cd-ca00-1bf1-5d74-c95c7677767b/886445195347.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/5f018c954a8eda24b7f52923a77b47237936ec34",
+    "spotifyUri": "spotify:track:5LYJ631w9ps5h9tdvac7yP",
+    "source": "preview"
+  },
+  {
+    "id": "sp_0qxYx4F3vm1AOnfux6dDxP",
+    "name": "You Can Call Me Al",
+    "artist": "Paul Simon",
+    "year": "1986",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/5e/c9/a5/5ec9a59c-13b6-3a55-5511-9e3da438551a/dj.ojewaxgt.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/d9144f35328ebf1e07dea90119171fcf468e9f45",
+    "spotifyUri": "spotify:track:0qxYx4F3vm1AOnfux6dDxP",
+    "source": "preview"
+  },
+  {
+    "id": "sp_6kWJvPfC4DgUpRsXKNa9z9",
+    "name": "All That She Wants",
+    "artist": "Ace of Base",
+    "year": "1992",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/be/93/73/be9373d1-31eb-edd0-5818-beb2a7d51868/cover.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/eef43d18f73d83ff358852d874dd564f55e86932",
+    "spotifyUri": "spotify:track:6kWJvPfC4DgUpRsXKNa9z9",
+    "source": "preview"
+  },
+  {
+    "id": "sp_7oOOI85fVQvVnK5ynNMdW7",
+    "name": "Rock with You",
+    "artist": "Michael Jackson",
+    "year": "1979",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/fe/a3/0cfea324-57c1-d530-5248-9bb591bbd7bf/074643574525.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/6dc61589137133c8764604dad7808c7beddd1f14",
+    "spotifyUri": "spotify:track:7oOOI85fVQvVnK5ynNMdW7",
+    "source": "preview"
+  },
+  {
+    "id": "sp_0J2p4KYdr6Mg4ET6JPlbe1",
+    "name": "Super Trouper",
+    "artist": "ABBA",
+    "year": "1980",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/60/f8/a6/60f8a6bc-e875-238d-f2f8-f34a6034e6d2/14UMGIM07615.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/5d7a5617b717cb3baba3b230b62b7a4aaef900ab",
+    "spotifyUri": "spotify:track:0J2p4KYdr6Mg4ET6JPlbe1",
+    "source": "preview"
+  },
+  {
+    "id": "sp_5EOoMWIB9iK4ZpcSex9Ec7",
+    "name": "Old Time Rock & Roll",
+    "artist": "Bob Seger",
+    "year": "1978",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/84/45/e9/8445e9f8-e151-82e3-de80-89fe96356103/17UM1IM03512.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/334dff2915c9b754318f8231abd68c064e9a0d1f",
+    "spotifyUri": "spotify:track:5EOoMWIB9iK4ZpcSex9Ec7",
+    "source": "preview"
+  },
+  {
+    "id": "sp_3wuCCNCnBhJlwkIJTBZFiv",
+    "name": "They Don't Care About Us",
+    "artist": "Michael Jackson",
+    "year": "1996",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Features125/v4/2a/82/a5/2a82a59b-6e79-7c39-761a-c1d3b82e93cb/dj.dzbxcmnk.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/7e48f0a50a4b64aaa56e9dab7259670b1e6fc278",
+    "spotifyUri": "spotify:track:3wuCCNCnBhJlwkIJTBZFiv",
+    "source": "preview"
+  },
+  {
+    "id": "sp_4wswaG5vmNINMZcVBsAyBP",
+    "name": "Got My Mind Set on You",
+    "artist": "George Harrison",
+    "year": "1987",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/5a/2d/e1/5a2de106-fc53-fa45-d56a-5f876eb6b8db/5099951336257.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/5236e93e5cf4c926af28492f83355a3ee1e98fa4",
+    "spotifyUri": "spotify:track:4wswaG5vmNINMZcVBsAyBP",
+    "source": "preview"
+  },
+  {
+    "id": "sp_1gFNm7cXfG1vSMcxPpSxec",
+    "name": "Ob-La-Di, Ob-La-Da",
+    "artist": "The Beatles",
+    "year": "1968",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/fa/5b/89/fa5b898d-bad6-e053-4195-260e5c74f2bb/00602567725466.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/adfa1959f0b3be9c6db8e9ce66ac9e3fff46d2fd",
+    "spotifyUri": "spotify:track:1gFNm7cXfG1vSMcxPpSxec",
+    "source": "preview"
+  },
+  {
+    "id": "sp_714hERk9U1W8FMYkoC83CO",
+    "name": "You Sexy Thing",
+    "artist": "Hot Chocolate",
+    "year": "1975",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/9d/26/11/9d2611a1-cbfd-fcaf-1c80-0d6df913a43c/mzm.jtydtbxn.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/cf7d6e0e8f7cb98c438805bbb5631fbc45891e3f",
+    "spotifyUri": "spotify:track:714hERk9U1W8FMYkoC83CO",
+    "source": "preview"
+  },
+  {
+    "id": "sp_6BeOb7wvuMugzPi853W3HU",
+    "name": "The Power Of Love - From “Back To The Future” Soundtrack",
+    "artist": "Huey Lewis & The News",
+    "year": "1985",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/00/da/b3/00dab3f6-5b8a-de2b-9399-0d40984807ea/13UABIM54788.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/299d86db655179d840ee344c012d90e3bdcd1037",
+    "spotifyUri": "spotify:track:6BeOb7wvuMugzPi853W3HU",
+    "source": "preview"
+  },
+  {
+    "id": "sp_3XIEWK1V9n25PS9Vb6axj5",
+    "name": "Born to Be Alive - The Original",
+    "artist": "Patrick Hernandez",
+    "year": "1979",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/17/1d/e5/171de50a-57ec-0401-26fc-32234eb006c9/cover.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/5898691af1ed6722dfb6d16340d92a39e55e383d",
+    "spotifyUri": "spotify:track:3XIEWK1V9n25PS9Vb6axj5",
+    "source": "preview"
+  },
+  {
+    "id": "sp_5uuJruktM9fMdN9Va0DUMl",
+    "name": "Play That Funky Music",
+    "artist": "Wild Cherry",
+    "year": "1976",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/af/f6/0c/aff60ca6-7385-e47d-7681-e5f73910665c/mzi.fjlfxpyy.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/4b3c574d2e102bf5140c29d2934f2f0d5dc7bfcf",
+    "spotifyUri": "spotify:track:5uuJruktM9fMdN9Va0DUMl",
+    "source": "preview"
+  },
+  {
+    "id": "sp_2LlQb7Uoj1kKyGhlkBf9aC",
+    "name": "Thriller",
+    "artist": "Michael Jackson",
+    "year": "1982",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/4f/fd/324ffda2-9e51-8f6a-0c2d-c6fd2b41ac55/074643811224.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/8b324c9265b3d58a815b9e405fd93238a740152d",
+    "spotifyUri": "spotify:track:2LlQb7Uoj1kKyGhlkBf9aC",
+    "source": "preview"
+  },
+  {
+    "id": "sp_4uvjOKsp7mSjrDhWdkLPBY",
+    "name": "I Think We're Alone Now",
+    "artist": "Tiffany",
+    "year": "1996",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/34/af/15/34af1507-9df6-3a45-9703-2e67060f9761/06UMGIM12311.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/0affd53d80aaf4bb54f2a0c40be189f8e7111073",
+    "spotifyUri": "spotify:track:4uvjOKsp7mSjrDhWdkLPBY",
+    "source": "preview"
+  },
+  {
+    "id": "sp_17OqI90oTFZ3J8PVu6j07V",
+    "name": "Voulez-Vous",
+    "artist": "ABBA",
+    "year": "2008",
+    "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c5/3d/97/c53d978b-4433-743e-7a4b-e01942cd33ee/00602517784154.rgb.jpg/600x600bb.jpg",
+    "audioUrl": "https://p.scdn.co/mp3-preview/adb0760cf03e97f3a142a89964afceffa9e323b1",
+    "spotifyUri": "spotify:track:17OqI90oTFZ3J8PVu6j07V",
+    "source": "preview"
+  }
+];

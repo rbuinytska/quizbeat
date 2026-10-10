@@ -1,5 +1,5 @@
-// Curated Packs and Audio Preview Engine (95+ Oldies Tracks)
-import { SK_TRACKS, WORLD_TRACKS } from '../data/tracksData';
+// Curated Packs and Audio Preview Engine (125+ Oldies Tracks)
+import { SK_TRACKS, WORLD_TRACKS, SPOTIFY_OLDIES_TRACKS } from '../data/tracksData';
 
 export function shuffleArray(arr) {
   const copy = [...arr];
@@ -12,28 +12,38 @@ export function shuffleArray(arr) {
 
 export const PACK_CATEGORIES = [
   { id: 'all', name: 'All Packs' },
+  { id: 'spotify', name: '🎧 Spotify Party' },
   { id: 'slovak', name: '🇸🇰 Slovak Oldies' },
   { id: 'world', name: '🌍 World Oldies' }
 ];
 
 // Helper to filter by genre/decade if desired
-const DISCO_SUB = WORLD_TRACKS.filter(t => 
+const DISCO_SUB = [...WORLD_TRACKS, ...SPOTIFY_OLDIES_TRACKS].filter(t => 
   ['ABBA', 'Boney M.', 'Earth, Wind & Fire', 'Modern Talking', 'Bee Gees', 'Gloria Gaynor', 'Ottawan', 'Village People', 'Corona', 'Ace of Base', 'Aqua', 'Mr. President', 'Scatman John', 'Dr. Alban'].some(a => t.artist.includes(a))
 );
 
-const ROCK_SUB = [...WORLD_TRACKS, ...SK_TRACKS].filter(t => 
-  ['Queen', 'Europe', 'AC/DC', 'Deep Purple', 'Scorpions', 'Bon Jovi', 'Guns N\' Roses', 'Survivor', 'Elán', 'Team', 'Tublatanka', 'Iné Kafe'].some(a => t.artist.includes(a))
+const ROCK_SUB = [...WORLD_TRACKS, ...SK_TRACKS, ...SPOTIFY_OLDIES_TRACKS].filter(t => 
+  ['Queen', 'Europe', 'AC/DC', 'Deep Purple', 'Scorpions', 'Bon Jovi', 'Guns N\' Roses', 'Survivor', 'Elán', 'Team', 'Tublatanka', 'Iné Kafe', 'Bob Seger', 'Huey Lewis'].some(a => t.artist.includes(a))
 );
 
 export const CURATED_PACKS = [
   {
+    id: 'pack_spotify_party',
+    category: 'spotify',
+    name: '🎧 Oldies Party Mix (Spotify)',
+    subtitle: '30 legendary party hits: Michael Jackson, ABBA, Whitney, Cyndi Lauper',
+    emoji: '🔥',
+    color: 'from-emerald-500 to-teal-700',
+    tracks: shuffleArray(SPOTIFY_OLDIES_TRACKS)
+  },
+  {
     id: 'pack_super_mix',
     category: 'all',
     name: '🪩 Oldies Party: Mega Mix',
-    subtitle: '95 iconic world & Slovak retro hits shuffled',
-    emoji: '🔥',
+    subtitle: '125 iconic world & Slovak retro hits shuffled',
+    emoji: '✨',
     color: 'from-purple-600 to-pink-600',
-    tracks: shuffleArray([...SK_TRACKS, ...WORLD_TRACKS])
+    tracks: shuffleArray([...SK_TRACKS, ...WORLD_TRACKS, ...SPOTIFY_OLDIES_TRACKS])
   },
   {
     id: 'pack_sk_mega',
