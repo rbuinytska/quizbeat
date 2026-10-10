@@ -544,16 +544,17 @@ body {
   justify-content: center;
   flex: 1;
   text-align: center;
-  padding: 20px 0;
+  padding: 8px 0 16px;
+  width: 100%;
 }
 
 .buzzer-btn {
-  width: 200px;
-  height: 200px;
+  width: clamp(165px, 24vh, 200px);
+  height: clamp(165px, 24vh, 200px);
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ec4899 0%, #be185d 60%, #831843 100%);
-  border: 6px solid #f43f5e;
-  box-shadow: 0 0 45px rgba(236, 72, 153, 0.6), 0 15px 35px rgba(0, 0, 0, 0.6);
+  background: radial-gradient(circle at 32% 32%, #f43f5e 0%, #e11d48 50%, #881337 100%);
+  border: 6px solid #fb7185;
+  box-shadow: 0 0 35px rgba(244, 63, 94, 0.65), 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 4px 8px rgba(255, 255, 255, 0.35);
   color: white;
   font-size: 1.8rem;
   font-weight: 900;
@@ -564,21 +565,28 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  gap: 4px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  animation: buzzerGlow 2.2s infinite ease-in-out;
+}
+
+@keyframes buzzerGlow {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(244, 63, 94, 0.6), 0 10px 25px rgba(0, 0, 0, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 52px rgba(244, 63, 94, 0.95), 0 14px 35px rgba(0, 0, 0, 0.7);
+    transform: scale(1.03);
+  }
 }
 
 .buzzer-btn:active {
-  transform: scale(0.92);
-  box-shadow: 0 0 60px rgba(236, 72, 153, 0.9);
-}
-
-.buzzer-btn.disabled {
-  background: #334155;
-  border-color: #475569;
-  box-shadow: none;
-  opacity: 0.6;
-  cursor: not-allowed;
+  transform: scale(0.92) !important;
+  box-shadow: 0 0 60px rgba(244, 63, 94, 1), 0 4px 15px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* Flashcard 3D Flip */
