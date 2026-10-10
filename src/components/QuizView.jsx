@@ -4,15 +4,16 @@ import {
   Play, 
   RotateCcw, 
   ArrowRight, 
+  ArrowLeft,
   Check, 
   X, 
   HelpCircle, 
   Clock, 
-  Sparkles,
-  Eye,
-  Shuffle,
-  Volume2,
-  Trophy
+  Sparkles, 
+  Eye, 
+  Shuffle, 
+  Volume2, 
+  Trophy 
 } from 'lucide-react';
 import { soundFx } from '../services/soundFx';
 import { previewPlayer, shuffleArray } from '../services/previewService';
@@ -27,9 +28,11 @@ export default function QuizView({
   onAddWeakTrack,
   score,
   streak,
-  onRecordAnswer
+  onRecordAnswer,
+  initialSubMode = 'flashcards',
+  onExitToLobby
 }) {
-  const [subMode, setSubMode] = useState('flashcards'); // 'flashcards' | 'buzzer' | 'options'
+  const [subMode, setSubMode] = useState(initialSubMode); // 'flashcards' | 'buzzer' | 'options'
   
   // Local shuffled playlist so every game session is random without repeating songs
   const [shuffledDeck, setShuffledDeck] = useState(() => shuffleArray(tracks));
@@ -280,7 +283,7 @@ export default function QuizView({
 
   if (!currentTrack || isPackCompleted) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center', padding: '36px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{
           width: 80,
           height: 80,
@@ -295,18 +298,30 @@ export default function QuizView({
         }}>
           <Trophy size={40} />
         </div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Pack Completed!</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: '0.9rem', maxWidth: 300, lineHeight: 1.4 }}>
-          You completed all <b>{shuffledDeck.length}</b> tracks with no repeats!
+        <h2 style={{ fontSize: '1.45rem', fontWeight: 900 }}>Round Completed!</h2>
+        <p style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: '0.92rem', maxWidth: 320, lineHeight: 1.4 }}>
+          You finished all <b>{shuffledDeck.length}</b> tracks in this round with zero repeats!
         </p>
 
-        <button 
-          className="action-btn"
-          style={{ marginTop: 24, width: 'auto', padding: '14px 28px' }}
-          onClick={handleManualReshuffle}
-        >
-          <Shuffle size={18} /> Shuffle & Play Again
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 300, marginTop: 24 }}>
+          <button 
+            className="action-btn"
+            style={{ padding: '14px 20px', fontSize: '0.98rem' }}
+            onClick={handleManualReshuffle}
+          >
+            <Shuffle size={18} /> Play Again ({shuffledDeck.length} Tracks)
+          </button>
+
+          {onExitToLobby && (
+            <button 
+              className="action-btn btn-secondary"
+              style={{ padding: '12px 18px', fontSize: '0.9rem' }}
+              onClick={onExitToLobby}
+            >
+              <ArrowLeft size={16} /> Change Settings / New Pack
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -339,9 +354,19 @@ export default function QuizView({
         </button>
       </div>
 
-      {/* Top Header: Progress Counter & Duration & Reshuffle */}
+      {/* Top Header: Progress Counter & Duration & Reshuffle & Lobby Exit */}
       <div className="quiz-top-info">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {onExitToLobby && (
+            <button 
+              className="icon-button"
+              onClick={() => { stopAudio(); onExitToLobby(); }}
+              style={{ width: 28, height: 28, borderRadius: 8, marginRight: 2 }}
+              title="Exit to Lobby"
+            >
+              <ArrowLeft size={13} />
+            </button>
+          )}
           <span style={{ fontSize: '0.85rem', color: '#c4b5fd', fontWeight: 800 }}>
             {currentIndex + 1} / {shuffledDeck.length}
           </span>

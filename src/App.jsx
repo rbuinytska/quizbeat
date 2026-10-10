@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
 import QuizView from './components/QuizView';
+import LobbyView from './components/LobbyView';
 import PlaylistsView from './components/PlaylistsView';
 import LeaderboardView from './components/LeaderboardView';
 import WeakTracksView from './components/WeakTracksView';
 import SettingsModal from './components/SettingsModal';
 
-import { CURATED_PACKS } from './services/previewService';
+import { CURATED_PACKS, shuffleArray } from './services/previewService';
 import { 
   handleSpotifyCallback, 
   getSpotifyToken, 
@@ -22,7 +23,10 @@ import {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('quiz'); // 'quiz' | 'packs' | 'leaderboard' | 'weak' | 'settings'
+  const [gameState, setGameState] = useState('lobby'); // 'lobby' | 'playing'
   const [activePack, setActivePack] = useState(CURATED_PACKS[0]);
+  const [roundTracks, setRoundTracks] = useState([]);
+  const [roundSettings, setRoundSettings] = useState({ subMode: 'flashcards', songCount: 20 });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Player Profile with Nickname and Cumulative Stats
@@ -90,12 +94,31 @@ export default function App() {
 
   const handleTrainWeakTracks = () => {
     if (weakTracks.length < 2) return;
-    setActivePack({
+    const weakPack = {
       id: `weak_drill_${Date.now()}`,
       name: '🎯 Mistakes Review',
       subtitle: `${weakTracks.length} tracks to master`,
       tracks: [...weakTracks].sort(() => 0.5 - Math.random())
-    });
+    };
+    setActivePack(weakPack);
+    setRoundTracks(weakPack.tracks);
+    setRoundSettings({ subMode: 'flashcards', songCount: weakTracks.length });
+    setGameState('playing');
+    setActiveTab('quiz');
+  };
+
+  // Start round with customized settings from Lobby
+  const handleStartGame = ({ pack, songCount, subMode, duration }) => {
+    setActivePack(pack);
+    if (duration && duration !== fragmentDuration) {
+      handleDurationChange(duration);
+    }
+    setRoundSettings({ subMode, songCount });
+
+    const shuffled = shuffleArray(pack.tracks);
+    const count = songCount === 'all' ? shuffled.length : Math.min(songCount, shuffled.length);
+    setRoundTracks(shuffled.slice(0, count));
+    setGameState('playing');
     setActiveTab('quiz');
   };
 
@@ -134,6 +157,7 @@ export default function App() {
 
   const handleSelectPack = (pack) => {
     setActivePack(pack);
+    setGameState('lobby');
     setActiveTab('quiz');
   };
 
@@ -159,17 +183,33 @@ export default function App() {
       {/* Main View Area */}
       <main className="main-content">
         {activeTab === 'quiz' && (
-          <QuizView 
-            tracks={activePack.tracks}
-            packName={activePack.name}
-            fragmentDuration={fragmentDuration}
-            onDurationChange={handleDurationChange}
-            isSpotifyConnected={isSpotifyConnected}
-            onAddWeakTrack={handleAddWeakTrack}
-            score={playerProfile.score || 0}
-            streak={playerProfile.currentStreak || 0}
-            onRecordAnswer={handleRecordAnswer}
-          />
+          gameState === 'lobby' ? (
+            <LobbyView 
+              playerProfile={playerProfile}
+              onUpdateProfile={(updated) => {
+                setPlayerProfile(updated);
+                saveLocalPlayerProfile(updated);
+              }}
+              initialPack={activePack}
+              fragmentDuration={fragmentDuration}
+              onDurationChange={handleDurationChange}
+              onStartGame={handleStartGame}
+            />
+          ) : (
+            <QuizView 
+              tracks={roundTracks.length > 0 ? roundTracks : activePack.tracks}
+              packName={activePack.name}
+              fragmentDuration={fragmentDuration}
+              onDurationChange={handleDurationChange}
+              isSpotifyConnected={isSpotifyConnected}
+              onAddWeakTrack={handleAddWeakTrack}
+              score={playerProfile.score || 0}
+              streak={playerProfile.currentStreak || 0}
+              onRecordAnswer={handleRecordAnswer}
+              initialSubMode={roundSettings.subMode}
+              onExitToLobby={() => setGameState('lobby')}
+            />
+          )
         )}
 
         {activeTab === 'packs' && (
