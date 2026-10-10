@@ -6,8 +6,10 @@ const SPOTIFY_REFRESH_TOKEN_KEY = 'quizbeat_spotify_refresh_token';
 const SPOTIFY_TOKEN_EXPIRY_KEY = 'quizbeat_spotify_token_expiry';
 const SPOTIFY_CODE_VERIFIER_KEY = 'quizbeat_code_verifier';
 
+export const DEFAULT_CLIENT_ID = '4285088c04cb4b69b54a03fcaf119054';
+
 export function getStoredClientId() {
-  return localStorage.getItem(SPOTIFY_CLIENT_ID_KEY) || '';
+  return localStorage.getItem(SPOTIFY_CLIENT_ID_KEY) || DEFAULT_CLIENT_ID;
 }
 
 export function saveClientId(clientId) {
