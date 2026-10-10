@@ -27,7 +27,7 @@ import {
   deleteCustomPack,
   shuffleArray
 } from '../services/previewService';
-import { fetchPlaylistTracks } from '../services/spotify';
+import { fetchPlaylistTracks, redirectToSpotifyAuth } from '../services/spotify';
 import { soundFx } from '../services/soundFx';
 
 // Quick Generator Presets (Queries that yield 25-30 instant retro party tracks)
@@ -518,11 +518,11 @@ export default function PlaylistsView({
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <ListMusic size={18} color="var(--accent-glow)" />
               <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff' }}>
-                Paste Tracklist from Spotify or Notes
+                Paste Tracklist (No Spotify Login Needed)
               </span>
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
-              Copy song titles or artist names from any Spotify playlist or text notes (one song per line):
+              Copy song titles or artist names from any Spotify playlist or text notes (one song per line). QuizBeat automatically matches real audio previews for each track completely free:
             </p>
 
             <textarea 
@@ -561,21 +561,28 @@ export default function PlaylistsView({
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <Disc size={18} color="var(--accent-spotify)" />
               <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff' }}>
-                Direct Spotify Account Link
+                Connect Personal Spotify Account (Optional)
               </span>
             </div>
 
             {!isSpotifyConnected ? (
               <div>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: 12 }}>
-                  Log in with your Spotify account to load your private and public playlists directly.
+                  All 100+ songs in QuizBeat already work 100% free without logging in! Connecting your Spotify account is only needed if you want to load your private personal playlists from Spotify Premium.
                 </p>
                 <button 
                   className="action-btn"
                   style={{ background: 'var(--grad-spotify)', boxShadow: 'var(--shadow-neon-green)' }}
-                  onClick={onOpenSettings}
+                  onClick={async () => {
+                    soundFx.playClick();
+                    try {
+                      await redirectToSpotifyAuth();
+                    } catch (e) {
+                      onOpenSettings();
+                    }
+                  }}
                 >
-                  Connect Spotify Account
+                  <Disc size={16} /> Log In with Spotify
                 </button>
               </div>
             ) : (
