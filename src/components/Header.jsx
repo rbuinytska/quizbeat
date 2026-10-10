@@ -1,10 +1,9 @@
 import React from 'react';
-import { Music2, Sparkles, Settings as SettingsIcon, Flame, Radio } from 'lucide-react';
+import { Music2, Settings as SettingsIcon, Flame, Trophy } from 'lucide-react';
 
 export default function Header({ 
   score, 
   streak, 
-  isSpotifyConnected, 
   onOpenSettings,
   activePackName 
 }) {
@@ -20,7 +19,7 @@ export default function Header({
             <span className="brand-badge">OLDIES</span>
           </div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '1px' }}>
-            {activePackName || 'Музыкальный квиз'}
+            {activePackName || 'Oldies Party'}
           </div>
         </div>
       </div>
@@ -33,14 +32,10 @@ export default function Header({
           </div>
         )}
 
-        <button 
-          className={`source-pill ${isSpotifyConnected ? 'spotify' : 'preview'}`}
-          onClick={onOpenSettings}
-          title={isSpotifyConnected ? 'Spotify подключен (Premium)' : 'Демо/Превью режим (Нажмите для Spotify)'}
-        >
-          <span className="pulse-dot"></span>
-          <span>{isSpotifyConnected ? 'Spotify' : 'Превью'}</span>
-        </button>
+        <div className="stat-chip" title="Ваши очки">
+          <Trophy size={13} color="var(--accent-purple)" />
+          <span>{score}</span>
+        </div>
 
         <button 
           className="icon-button"
