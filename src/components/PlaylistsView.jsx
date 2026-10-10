@@ -11,7 +11,7 @@ import {
   ArrowRight,
   ListMusic
 } from 'lucide-react';
-import { CURATED_PACKS, searchTracksOnline } from '../services/previewService';
+import { CURATED_PACKS, PACK_CATEGORIES, searchTracksOnline } from '../services/previewService';
 import { fetchPlaylistTracks } from '../services/spotify';
 import { soundFx } from '../services/soundFx';
 
@@ -23,6 +23,7 @@ export default function PlaylistsView({
   onOpenSettings
 }) {
   const [activeTab, setActiveTab] = useState('curated'); // 'curated' | 'search' | 'spotify'
+  const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'slovak' | 'world'
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
@@ -32,6 +33,11 @@ export default function PlaylistsView({
   const [spotifyUrlInput, setSpotifyUrlInput] = useState('');
   const [isImportingSpotify, setIsImportingSpotify] = useState(false);
   const [spotifyImportError, setSpotifyImportError] = useState('');
+
+  const filteredPacks = CURATED_PACKS.filter(pack => {
+    if (selectedCategory === 'all') return true;
+    return pack.category === selectedCategory;
+  });
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -51,7 +57,7 @@ export default function PlaylistsView({
   };
 
   const handleCreateSearchPack = () => {
-    if (searchResults.length < 4) return;
+    if (searchResults.length < 2) return;
     soundFx.playClick();
     onSelectPack({
       id: `custom_search_${Date.now()}`,
@@ -74,8 +80,8 @@ export default function PlaylistsView({
     setSpotifyImportError('');
     try {
       const result = await fetchPlaylistTracks(spotifyUrlInput);
-      if (result.tracks.length < 4) {
-        setSpotifyImportError('В плейлисте должно быть минимум 4 трека для квиза');
+      if (result.tracks.length < 2) {
+        setSpotifyImportError('В плейлисте должно быть минимум 2 трека');
         return;
       }
       soundFx.playClick();
@@ -93,8 +99,8 @@ export default function PlaylistsView({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Tab Switcher */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Main Tab Switcher */}
       <div className="mode-selector">
         <button 
           className={`mode-btn ${activeTab === 'curated' ? 'active' : ''}`}
@@ -116,62 +122,91 @@ export default function PlaylistsView({
         </button>
       </div>
 
-      {/* TAB 1: Curated Packs */}
+      {/* TAB 1: Curated Packs with Category Filter */}
       {activeTab === 'curated' && (
-        <div className="packs-grid">
-          {CURATED_PACKS.map(pack => {
-            const isActive = activePackId === pack.id;
-            return (
-              <div 
-                key={pack.id}
-                className={`pack-card ${isActive ? 'active' : ''}`}
-                onClick={() => {
-                  soundFx.playClick();
-                  onSelectPack(pack);
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Category Filter Pills */}
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
+            {PACK_CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => { soundFx.playClick(); setSelectedCategory(cat.id); }}
+                style={{
+                  background: selectedCategory === cat.id ? 'var(--grad-primary)' : 'rgba(255,255,255,0.06)',
+                  border: selectedCategory === cat.id ? '1px solid transparent' : '1px solid var(--border-subtle)',
+                  color: selectedCategory === cat.id ? '#fff' : 'var(--text-secondary)',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  padding: '7px 14px',
+                  borderRadius: '20px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  boxShadow: selectedCategory === cat.id ? 'var(--shadow-neon-purple)' : 'none',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 14,
-                    background: 'var(--bg-surface)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.6rem',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-                  }}>
-                    {pack.emoji}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: '1rem', color: '#fff' }}>
-                      {pack.name}
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2 }}>
-                      {pack.subtitle}
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--accent-purple)', marginTop: 4, fontWeight: 700 }}>
-                      {pack.tracks.length} треков
-                    </div>
-                  </div>
-                </div>
+                {cat.name}
+              </button>
+            ))}
+          </div>
 
-                {isActive && <CheckCircle2 size={22} color="var(--accent-purple)" />}
-              </div>
-            );
-          })}
+          {/* List of Packs */}
+          <div className="packs-grid">
+            {filteredPacks.map(pack => {
+              const isActive = activePackId === pack.id;
+              return (
+                <div 
+                  key={pack.id}
+                  className={`pack-card ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    soundFx.playClick();
+                    onSelectPack(pack);
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 14,
+                      background: 'var(--bg-surface)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.5rem',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      border: '1px solid var(--border-subtle)'
+                    }}>
+                      {pack.emoji}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '0.96rem', color: '#fff' }}>
+                        {pack.name}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.3 }}>
+                        {pack.subtitle}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: '#c4b5fd', marginTop: 4, fontWeight: 700 }}>
+                        {pack.tracks.length} треков
+                      </div>
+                    </div>
+                  </div>
+
+                  {isActive && <CheckCircle2 size={22} color="var(--accent-purple)" />}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      {/* TAB 2: Online Search (iTunes preview engine) */}
+      {/* TAB 2: Online Search (iTunes preview engine with SK prioritizing) */}
       {activeTab === 'search' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
             <input 
               type="text" 
               className="input-field"
-              placeholder="Артист, жанр или трек (напр. Руки Вверх, Queen)..."
+              placeholder="Напр. Elán, Karol Duchoň, ABBA, Queen..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -196,7 +231,7 @@ export default function PlaylistsView({
                   style={{ width: 'auto', padding: '8px 14px', fontSize: '0.85rem' }}
                   onClick={handleCreateSearchPack}
                 >
-                  <PlusCircle size={16} /> Начать играть этот пак
+                  <PlusCircle size={16} /> Тренировать этот пак
                 </button>
               </div>
 
@@ -261,7 +296,7 @@ export default function PlaylistsView({
               </div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Подключите Spotify Premium</h3>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.4 }}>
-                Позволит загружать любые ваши плейлисты и тренироваться на полных треках прямо в браузере.
+                Позволит загружать любые ваши плейлисты словацких и мировых ретро-хитов прямо из медиатеки.
               </p>
               <button 
                 className="action-btn"

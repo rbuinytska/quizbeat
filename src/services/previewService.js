@@ -1,9 +1,205 @@
-// Built-in Curated Packs & iTunes Audio Preview Engine (Specialized for Oldies Party Quiz)
+// Built-in Curated Packs & iTunes Audio Preview Engine (Slovak & International Oldies Party Hits)
+
+export const PACK_CATEGORIES = [
+  { id: 'all', name: 'Все паки' },
+  { id: 'slovak', name: '🇸🇰 Slovenské Oldies' },
+  { id: 'world', name: '🌍 Svetové Oldies' }
+];
 
 export const CURATED_PACKS = [
+  // ==========================================
+  // 🇸🇰 SLOVENSKÉ OLDIES HITY
+  // ==========================================
+  {
+    id: 'pack_sk_legends',
+    category: 'slovak',
+    name: '🇸🇰 Slovenské Oldies: Zlaté Legendy',
+    subtitle: 'Karol Duchoň, Meky Žbirka, Marika Gombitová, Modus, Peter Nagy',
+    emoji: '👑',
+    color: 'from-blue-600 to-indigo-700',
+    tracks: [
+      {
+        id: 'sk_1',
+        name: 'Čardáš dvoch sŕdc',
+        artist: 'Karol Duchoň',
+        year: '1976',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/22/32/ca/2232caf4-e071-38e4-36f4-3316727733ba/8584019050826.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/15/eb/36/15eb368b-13f4-b6c8-e58b-0a7f61cc2b5c/mzaf_10020958859934671588.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_2',
+        name: 'Biely kvet',
+        artist: 'Miroslav Žbirka',
+        year: '1982',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/cd/2b/80/cd2b80b1-ecde-a7bd-6f39-6ea3751e2b88/8584019125821.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b7/28/15/b728151b-fff9-0aba-a5b3-ce27e906cbe7/mzaf_18072664042463935747.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_3',
+        name: 'Šiel, šiel',
+        artist: 'Karol Duchoň',
+        year: '1974',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/62/bb/63/62bb63d4-0916-7b17-e5b6-5c6a8ba2d4c3/190295178406.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8f/07/25/8f07253c-16b2-2d54-a58b-91847b1083c1/mzaf_14814616905836568638.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_4',
+        name: 'Atlantída',
+        artist: 'Miroslav Žbirka',
+        year: '1982',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/cd/2b/80/cd2b80b1-ecde-a7bd-6f39-6ea3751e2b88/8584019125821.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c8/e8/90/c8e89069-5a0d-b2ac-f7f0-6301538cc84c/mzaf_7640148966982142079.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_5',
+        name: 'Kristínka iba spí',
+        artist: 'Peter Nagy',
+        year: '1984',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f9/15/51/f915512b-a951-0e1f-0944-7e68a170e70c/8584019156924.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/b2/ef/04/b2ef043e-d746-857a-3fee-8baa8c632629/mzaf_5914688246673408973.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_6',
+        name: 'Vyznanie',
+        artist: 'Marika Gombitová',
+        year: '1979',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/87/4d/7f/874d7ff4-1b81-147f-93f3-47973a75bef1/8584019085828.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2c/22/3d/2c223dc2-138b-899d-5af3-0a42a4debdf3/mzaf_8509339398897325865.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_7',
+        name: 'Dievčatá',
+        artist: 'Modus',
+        year: '1978',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/62/f5/ad/62f5ad80-0b38-60fb-42d9-3da78b4a4bba/8584019270828.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/62/88/1f/62881fcc-94c1-0fd5-d53e-237878a08618/mzaf_15825901043474859820.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_8',
+        name: 'S nohami na stole',
+        artist: 'Peter Nagy',
+        year: '1985',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/ce/57/47/ce574737-f906-e673-90e8-bb0b950b0d47/cover.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/72/a0/17/72a017a2-c09c-eaf6-a4a6-e4bc03e46086/mzaf_10345491694559317389.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'sk_9',
+        name: 'Anča si drahá ako Volvo',
+        artist: 'Lojzo',
+        year: '1985',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/42/85/7c/42857ca9-37b7-bb98-7a16-e4d0b0ded536/8584019168828.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c6/11/b1/c611b140-21a7-7e3e-7115-1c2925d5a021/mzaf_16317611780717170596.plus.aac.p.m4a',
+        source: 'preview'
+      }
+    ]
+  },
+  {
+    id: 'pack_sk_rock_90s',
+    category: 'slovak',
+    name: '🇸🇰 Slovenské Oldies: Rock & 80/90-te',
+    subtitle: 'Elán, Team, Tublatanka, Richard Müller, Vidiek',
+    emoji: '🎸',
+    color: 'from-red-600 to-amber-600',
+    tracks: [
+      {
+        id: 'skr_1',
+        name: 'Zaľúbil sa chlapec',
+        artist: 'Elán',
+        year: '1985',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/79/55/ef/7955ef8e-d2f8-c0f4-200d-d6708c331f07/190296216671.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/30/a7/45/30a74580-ceef-3828-a560-6a50fc858435/mzaf_5023874610033072488.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_2',
+        name: 'Reklama na ticho',
+        artist: 'Team',
+        year: '1988',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/e8/67/5e/e8675eaa-4439-5795-fb86-b57f9e96595b/8584019204526.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9c/67/97/9c6797b9-c78f-0e42-ebde-f920f4128ce1/mzaf_8865943807089441819.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_3',
+        name: 'Po schodoch',
+        artist: 'Richard Müller & Banket',
+        year: '1986',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/8f/c2/79/8fc27922-2918-9e5f-3ef7-443c5208b0bd/8584019178629.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9a/9c/7b/9a9c7b68-9295-bd01-ed9b-446276c86fe9/mzaf_2234872653699919873.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_4',
+        name: 'Kráľovná bielych tenisiek',
+        artist: 'Elán',
+        year: '1985',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/79/55/ef/7955ef8e-d2f8-c0f4-200d-d6708c331f07/190296216671.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/83/da/f1/83daf1b7-7cec-9e0f-090f-fc4b70c19457/mzaf_10190130914875809461.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_5',
+        name: 'Dnes',
+        artist: 'Tublatanka',
+        year: '1987',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/3a/c6/fc/3ac6fc36-929b-c107-a44a-758a6aa92332/190295178352.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/9e/e7/ef/9ee7ef43-55a3-1f90-1be0-26eac5233946/mzaf_8422636814221839689.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_6',
+        name: 'Vidiečan',
+        artist: 'Vidiek',
+        year: '1988',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a9/4a/03/a94a0314-6c57-9176-55bc-53b6d2b148b0/8584019210329.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cb/b4/ae/cbb4ae61-2939-a63d-c0a6-31f4dbbdbc5a/mzaf_5583529966452669241.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_7',
+        name: 'Boli sme raz milovaní',
+        artist: 'Pavol Habera',
+        year: '2000',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/93/3e/cf/933ecf69-a17f-ebf4-0d59-2e602e4e832e/00731454290326.rgb.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/d7/5d/fc/d75dfc21-6bae-920a-3f6c-01dd3a3e19d3/mzaf_6928950852850965288.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_8',
+        name: 'Ráno',
+        artist: 'Iné Kafe',
+        year: '2000',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/0a/4b/bb/0a4bbb03-c65b-4f39-3f3b-302a92cadaaa/190295178468.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/18/8f/0f/188f0fa2-e242-6beb-c38d-c3d5a48a0cf4/mzaf_7718703758005554222.plus.aac.p.m4a',
+        source: 'preview'
+      },
+      {
+        id: 'skr_9',
+        name: 'Voda, čo ma drží nad vodou',
+        artist: 'Elán',
+        year: '1999',
+        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music22/v4/8a/3e/27/8a3e2786-d47b-388e-4a94-c9f0d59b89c8/190295914479.jpg/600x600bb.jpg',
+        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1a/88/03/1a880375-164b-25ed-ff6d-1704f2c0fa48/mzaf_14222420114128165799.plus.aac.p.m4a',
+        source: 'preview'
+      }
+    ]
+  },
+
+  // ==========================================
+  // 🌍 SVETOVÉ OLDIES HITY
+  // ==========================================
   {
     id: 'pack_oldies_flagship',
-    name: '🏆 Oldies Party: Главные Хиты',
+    category: 'world',
+    name: '🏆 Svetové Oldies: Hlavné Hity',
     subtitle: 'ABBA, Boney M, Michael Jackson, Queen, Whitney Houston',
     emoji: '🪩',
     color: 'from-amber-400 to-pink-600',
@@ -82,15 +278,6 @@ export const CURATED_PACKS = [
       },
       {
         id: 'oldies_9',
-        name: 'I Will Survive',
-        artist: 'Gloria Gaynor',
-        year: '1978',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/33/12/df/3312dfbf-2cd2-e149-1ccb-9688e2a60980/00731454913720.rgb.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e7/40/66/e74066a0-d000-1896-cd2e-7b2bc97393ad/mzaf_6935563640938257821.plus.aac.p.m4a',
-        source: 'preview'
-      },
-      {
-        id: 'oldies_10',
         name: 'Take On Me',
         artist: 'a-ha',
         year: '1985',
@@ -102,7 +289,8 @@ export const CURATED_PACKS = [
   },
   {
     id: 'pack_oldies_disco',
-    name: '🪩 Oldies Party: Золотое Диско 70-х & 80-х',
+    category: 'world',
+    name: '🪩 Svetové Oldies: Zlaté Disko',
     subtitle: 'Boney M, ABBA, Ottawan, Modern Talking',
     emoji: '🕺',
     color: 'from-pink-500 to-purple-600',
@@ -145,15 +333,6 @@ export const CURATED_PACKS = [
       },
       {
         id: 'disco_5',
-        name: 'You\'re My Heart, You\'re My Soul',
-        artist: 'Modern Talking',
-        year: '1984',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/80/7e/4e/807e4e13-2d1b-b461-8bfe-989cf8bcf044/828765764426.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/64/07/04/64070490-67c1-fa4f-178d-71bce3e659c2/mzaf_6496426466961448858.plus.aac.p.m4a',
-        source: 'preview'
-      },
-      {
-        id: 'disco_6',
         name: 'The Rhythm of the Night',
         artist: 'Corona',
         year: '1993',
@@ -165,7 +344,8 @@ export const CURATED_PACKS = [
   },
   {
     id: 'pack_oldies_rock',
-    name: '⚡ Oldies Party: Культовый Рок & Глэм',
+    category: 'world',
+    name: '⚡ Svetové Oldies: Rock & Glam',
     subtitle: 'Queen, AC/DC, Scorpions, Europe, Deep Purple',
     emoji: '🎸',
     color: 'from-amber-500 to-red-600',
@@ -214,21 +394,13 @@ export const CURATED_PACKS = [
         albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/2d/75/a7/2d75a7c2-11cf-5d46-4cb2-6385d95fe8ea/00602547274025.rgb.jpg/600x600bb.jpg',
         audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/05/79/11/0579116e-eb2e-84b2-2ea9-42ceae0002b8/mzaf_1079374092572622709.plus.aac.p.m4a',
         source: 'preview'
-      },
-      {
-        id: 'rock_6',
-        name: 'Sweet Child O\' Mine',
-        artist: 'Guns N\' Roses',
-        year: '1987',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/71/61/52/716152b1-12c8-8df0-5fa3-f42817812239/00602567540292.rgb.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ff/e9/c6/ffe9c6da-3c48-2675-aeb1-66487e416d51/mzaf_15783302008775401928.plus.aac.p.m4a',
-        source: 'preview'
       }
     ]
   },
   {
     id: 'pack_oldies_90s',
-    name: '📼 Oldies Party: Евроденс 90-х',
+    category: 'world',
+    name: '📼 Svetové Oldies: Eurodance 90-te',
     subtitle: 'Ace of Base, Haddaway, Dr. Alban, Aqua, Scatman',
     emoji: '🎧',
     color: 'from-cyan-500 to-blue-600',
@@ -277,75 +449,32 @@ export const CURATED_PACKS = [
         albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/c3/a2/5d/c3a25d2b-f45d-c6a1-a6ca-864700be9987/706301489063.jpg/600x600bb.jpg',
         audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ec/3b/b1/ec3bb114-1e5b-c2e3-085e-b24e6c99c8f6/mzaf_1495919420079093848.plus.aac.p.m4a',
         source: 'preview'
-      },
-      {
-        id: 'euro_6',
-        name: 'Scatman (Ski-Ba-Bop-Ba-Dop-Bop)',
-        artist: 'Scatman John',
-        year: '1995',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a5/2b/96/a52b963a-ceea-5ea5-1027-2c93d9ce4e39/743212879527.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/f5/00/cb/f500cbdf-e3df-eb3f-ec0a-e49ce8bf08bb/mzaf_10793665330375990263.plus.aac.p.m4a',
-        source: 'preview'
-      }
-    ]
-  },
-  {
-    id: 'pack_oldies_retro_ussr',
-    name: '📻 Oldies Party: Ретро-Дискотека СССР',
-    subtitle: 'Мираж, Комбинация, Ласковый Май, Браво',
-    emoji: '🪕',
-    color: 'from-red-500 to-rose-700',
-    tracks: [
-      {
-        id: 'ussr_1',
-        name: 'Музыка нас связала',
-        artist: 'Мираж',
-        year: '1989',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/44/2a/8f/442a8fdc-0265-0242-9cb1-6dd3977304cf/cover.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cd/fb/74/cdfb74a2-1641-995a-1fda-7382ac1ac423/mzaf_13576514287858323696.plus.aac.p.m4a',
-        source: 'preview'
-      },
-      {
-        id: 'ussr_2',
-        name: 'American Boy',
-        artist: 'Комбинация',
-        year: '1990',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/c4/b1/5c/c4b15cdd-8eb5-3629-08db-4ce3effec5de/cover.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1d/44/96/1d4496b0-fc2c-6dbc-fd23-10377810f2ea/mzaf_16844053192601699014.plus.aac.p.m4a',
-        source: 'preview'
-      },
-      {
-        id: 'ussr_3',
-        name: 'Total Eclipse of the Heart',
-        artist: 'Bonnie Tyler',
-        year: '1983',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/20/74/b8/2074b81d-d546-b0c2-d85b-dda3a5e17661/886448236856.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/47/3d/35/473d35b3-b379-12d9-8fbf-88299e3cad7e/mzaf_5191559564499798673.plus.aac.p.m4a',
-        source: 'preview'
-      },
-      {
-        id: 'ussr_4',
-        name: 'Careless Whisper',
-        artist: 'George Michael',
-        year: '1984',
-        albumArt: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/89/46/95/8946959a-e959-f22d-ced2-745feb799454/mzm.upagbaeg.jpg/600x600bb.jpg',
-        audioUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7c/bb/d8/7cbbd80c-29a1-6142-d0f3-de33e8569a0e/mzaf_12978360432335063808.plus.aac.p.m4a',
-        source: 'preview'
       }
     ]
   }
 ];
 
-// Search songs using Apple iTunes Search API (Returns 30-sec previews, high-res artwork, years)
+// Search songs using Apple iTunes Search API (country=SK prioritizing Slovak/local catalogue)
 export async function searchTracksOnline(query) {
   if (!query || query.trim().length === 0) return [];
 
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25`;
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=sk&media=music&entity=song&limit=25`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('Ошибка поиска треков');
+  if (!res.ok) throw new Error('Chyba vyhľadávania skladieb');
 
   const data = await res.json();
-  return (data.results || [])
+  let results = data.results || [];
+
+  // Fallback to global if empty
+  if (results.length === 0) {
+    const globalRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25`);
+    if (globalRes.ok) {
+      const gData = await globalRes.json();
+      results = gData.results || [];
+    }
+  }
+
+  return results
     .filter(item => item.previewUrl)
     .map(item => ({
       id: `itunes_${item.trackId}`,
@@ -386,7 +515,7 @@ class PreviewPlayerService {
           }
         })
         .catch(err => {
-          console.warn('Playback interrupted or blocked by browser autoplay:', err);
+          console.warn('Playback interrupted:', err);
         });
     }
 
