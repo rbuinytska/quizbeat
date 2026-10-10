@@ -4,15 +4,15 @@ import {
   Play, 
   RotateCcw, 
   ArrowRight, 
-  Volume2, 
   Check, 
   X, 
   HelpCircle, 
   Clock, 
   Sparkles,
-  ExternalLink,
+  Eye,
+  Radio,
   Flame,
-  Radio
+  Volume2
 } from 'lucide-react';
 import { soundFx } from '../services/soundFx';
 import { previewPlayer } from '../services/previewService';
@@ -25,21 +25,21 @@ export default function QuizView({
   onDurationChange,
   isSpotifyConnected,
   onAddWeakTrack,
-  onTrackGuessed,
   score,
   streak,
   onRecordAnswer
 }) {
-  const [subMode, setSubMode] = useState('options'); // 'options' | 'buzzer' | 'flashcards'
+  // Default to 'flashcards' as requested by the user
+  const [subMode, setSubMode] = useState('flashcards'); // 'flashcards' | 'buzzer' | 'options'
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [timeLeft, setTimeLeft] = useState(fragmentDuration);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [hasAnswered, setHasAnswered] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
   const [options, setOptions] = useState([]);
-  const [isFlipped, setIsFlipped] = useState(false);
-  
+
   // Buzzer mode specific state
   const [buzzerPressed, setBuzzerPressed] = useState(false);
   const [buzzerCountdown, setBuzzerCountdown] = useState(5);
@@ -49,31 +49,30 @@ export default function QuizView({
 
   const currentTrack = tracks[currentIndex] || null;
 
-  // Shuffle and generate 4 options whenever current track changes
+  // Whenever track changes, reset and autoplay
   useEffect(() => {
     if (!currentTrack || tracks.length === 0) return;
 
-    // Pick 3 distractors
+    // Pick 3 distractors for the optional 'options' submode
     const otherTracks = tracks.filter(t => t.id !== currentTrack.id);
     const shuffledOthers = [...otherTracks].sort(() => 0.5 - Math.random());
     const distractors = shuffledOthers.slice(0, Math.min(3, shuffledOthers.length));
-    
     const combined = [currentTrack, ...distractors].sort(() => 0.5 - Math.random());
     setOptions(combined);
 
     // Reset round states
+    setIsFlipped(false);
     setHasAnswered(false);
     setSelectedOption(null);
     setIsCorrect(false);
-    setIsFlipped(false);
     setBuzzerPressed(false);
     setTimeLeft(fragmentDuration);
     stopAudio();
 
-    // Auto-play next track
+    // Autoplay current track
     const autoPlayTimer = setTimeout(() => {
       startPlayback(currentTrack);
-    }, 400);
+    }, 350);
 
     return () => {
       clearTimeout(autoPlayTimer);
@@ -101,7 +100,7 @@ export default function QuizView({
     return () => clearInterval(timerIntervalRef.current);
   }, [isPlaying, timeLeft]);
 
-  // Buzzer countdown timer (5 seconds to say the answer out loud)
+  // Buzzer countdown
   useEffect(() => {
     if (buzzerPressed && buzzerCountdown > 0) {
       buzzerIntervalRef.current = setInterval(() => {
@@ -126,11 +125,8 @@ export default function QuizView({
     setIsPlaying(true);
 
     if (isSpotifyConnected && track.spotifyUri) {
-      // Pick random jump position between 20s and 60s
       const randomStartMs = Math.floor(Math.random() * 40000) + 15000;
       spotifyPlayer.playTrack(track.spotifyUri, randomStartMs);
-      
-      // Auto pause after fragmentDuration
       setTimeout(() => {
         stopAudio();
       }, fragmentDuration * 1000);
@@ -151,11 +147,49 @@ export default function QuizView({
     }
   };
 
-  const handleReplay = () => {
+  const handleReplay = (e) => {
+    if (e) e.stopPropagation();
     soundFx.playClick();
     startPlayback(currentTrack);
   };
 
+  const handleFlipCard = () => {
+    soundFx.playClick();
+    setIsFlipped(true);
+    stopAudio();
+  };
+
+  // FLASHCARD: User evaluates whether they knew the song
+  const handleCardResult = (knewIt) => {
+    stopAudio();
+    if (knewIt) {
+      soundFx.playCorrect();
+      onRecordAnswer(true, currentTrack);
+      if (streak + 1 >= 3) {
+        confetti({
+          particleCount: 65,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+      }
+    } else {
+      soundFx.playWrong();
+      onRecordAnswer(false, currentTrack);
+      onAddWeakTrack(currentTrack);
+    }
+    handleNextTrack();
+  };
+
+  const handleNextTrack = () => {
+    soundFx.playClick();
+    if (currentIndex < tracks.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      setCurrentIndex(0);
+    }
+  };
+
+  // Options mode click
   const handleOptionClick = (option) => {
     if (hasAnswered) return;
     setHasAnswered(true);
@@ -169,11 +203,7 @@ export default function QuizView({
       soundFx.playCorrect();
       onRecordAnswer(true, currentTrack);
       if (streak + 1 >= 3) {
-        confetti({
-          particleCount: 70,
-          spread: 60,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
       }
     } else {
       soundFx.playWrong();
@@ -182,6 +212,7 @@ export default function QuizView({
     }
   };
 
+  // Buzzer mode press
   const handleBuzzerPress = () => {
     if (hasAnswered || buzzerPressed) return;
     soundFx.playBuzzer();
@@ -203,37 +234,13 @@ export default function QuizView({
     }
   };
 
-  const handleFlashcardEvaluate = (remembered) => {
-    setHasAnswered(true);
-    stopAudio();
-    if (remembered) {
-      soundFx.playCorrect();
-      onRecordAnswer(true, currentTrack);
-    } else {
-      soundFx.playWrong();
-      onRecordAnswer(false, currentTrack);
-      onAddWeakTrack(currentTrack);
-    }
-    handleNextTrack();
-  };
-
-  const handleNextTrack = () => {
-    soundFx.playClick();
-    if (currentIndex < tracks.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      // Loop or shuffle
-      setCurrentIndex(0);
-    }
-  };
-
   if (!currentTrack) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
         <HelpCircle size={48} color="var(--accent-purple)" style={{ marginBottom: 16 }} />
         <h3>В этом плейлисте нет треков</h3>
         <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>
-          Выберите другой плейлист или выполните поиск во вкладке «Плейлисты».
+          Выберите другой плейлист во вкладке «Плейлисты».
         </p>
       </div>
     );
@@ -243,13 +250,13 @@ export default function QuizView({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-      {/* Submode Switcher */}
+      {/* Mode Switcher: Flashcards is default */}
       <div className="mode-selector">
         <button 
-          className={`mode-btn ${subMode === 'options' ? 'active' : ''}`}
-          onClick={() => { soundFx.playClick(); setSubMode('options'); }}
+          className={`mode-btn ${subMode === 'flashcards' ? 'active' : ''}`}
+          onClick={() => { soundFx.playClick(); setSubMode('flashcards'); }}
         >
-          <span>🎯 4 Варианта</span>
+          <span>🃏 Карточки (Тренажер)</span>
         </button>
         <button 
           className={`mode-btn ${subMode === 'buzzer' ? 'active' : ''}`}
@@ -258,22 +265,22 @@ export default function QuizView({
           <span>🚨 Фальстарт</span>
         </button>
         <button 
-          className={`mode-btn ${subMode === 'flashcards' ? 'active' : ''}`}
-          onClick={() => { soundFx.playClick(); setSubMode('flashcards'); }}
+          className={`mode-btn ${subMode === 'options' ? 'active' : ''}`}
+          onClick={() => { soundFx.playClick(); setSubMode('options'); }}
         >
-          <span>🃏 Карточки</span>
+          <span>🎯 Тест А-Б-В-Г</span>
         </button>
       </div>
 
-      {/* Top Controls: Duration & Track Counter */}
+      {/* Top Header: Track Counter & Duration Selector */}
       <div className="quiz-top-info">
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700 }}>
             Трек {currentIndex + 1} из {tracks.length}
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <Clock size={13} color="var(--text-muted)" />
           {[3, 5, 10, 15].map(sec => (
             <button
@@ -283,130 +290,222 @@ export default function QuizView({
                 background: fragmentDuration === sec ? 'var(--accent-purple)' : 'rgba(255,255,255,0.06)',
                 border: 'none',
                 color: fragmentDuration === sec ? '#fff' : 'var(--text-muted)',
-                fontSize: '0.72rem',
+                fontSize: '0.74rem',
                 fontWeight: 700,
-                padding: '3px 7px',
+                padding: '3px 8px',
                 borderRadius: '8px',
                 cursor: 'pointer'
               }}
+              title={sec === 3 ? 'Интро-раунд квиза' : `${sec} секунд`}
             >
-              {sec}с
+              {sec}с{sec === 3 ? ' 🔥' : ''}
             </button>
           ))}
         </div>
       </div>
 
       {/* Timer Bar */}
-      <div className="timer-container">
+      <div className="timer-container" style={{ marginBottom: 14 }}>
         <div 
           className={`timer-fill ${timeLeft <= 2 ? 'danger' : ''}`}
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
-      {/* Centerpiece Visualizer / Vinyl */}
-      {subMode !== 'flashcards' && (
-        <div className="player-hero">
-          <div className="vinyl-box">
-            <div className={`vinyl-disc ${isPlaying ? 'spinning' : ''}`}>
-              <div className="vinyl-grooves" />
-              {hasAnswered && currentTrack.albumArt ? (
-                <img src={currentTrack.albumArt} alt="" className="vinyl-art" />
-              ) : (
+      {/* ============================================================ */}
+      {/* PRIMARY MODE: FLASHCARDS (Active Recall Memory Trainer)       */}
+      {/* ============================================================ */}
+      {subMode === 'flashcards' && (
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div 
+            className="flashcard-wrapper" 
+            style={{ height: 320, margin: '6px 0 16px' }}
+            onClick={!isFlipped ? handleFlipCard : undefined}
+          >
+            <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
+              {/* FRONT: Audio playing & hidden answer */}
+              <div className="flashcard-front">
                 <div style={{
-                  width: 80,
-                  height: 80,
+                  width: 104,
+                  height: 104,
                   borderRadius: '50%',
-                  background: 'var(--grad-primary)',
+                  background: 'radial-gradient(circle, #252530 0%, #101016 70%, #050508 100%)',
+                  border: '3px solid #3b3b4f',
+                  boxShadow: isPlaying ? '0 0 25px rgba(139, 92, 246, 0.5)' : '0 10px 25px rgba(0,0,0,0.5)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#fff',
-                  fontSize: '1.6rem',
-                  fontWeight: 900
+                  marginBottom: 14,
+                  position: 'relative'
                 }}>
-                  ?
+                  <div className={`vinyl-disc ${isPlaying ? 'spinning' : ''}`} style={{ border: 'none', boxShadow: 'none' }}>
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      background: 'var(--grad-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: '1.2rem',
+                      fontWeight: 900
+                    }}>
+                      {isPlaying ? '♫' : '?'}
+                    </div>
+                  </div>
                 </div>
-              )}
-              <div className="vinyl-center-hole" />
+
+                {/* Animated Waveform */}
+                <div className="waveform-container" style={{ height: 26, marginBottom: 8 }}>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                    <div 
+                      key={i} 
+                      className={`waveform-bar ${isPlaying ? 'playing' : ''}`} 
+                      style={{ width: 3 }}
+                    />
+                  ))}
+                </div>
+
+                <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+                  {isPlaying ? 'Слушайте отрывок...' : 'Отрывок сыгран'}
+                </div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 4, textAlign: 'center', maxWidth: 280 }}>
+                  Вспомните песню и исполнителя вслух, затем переверните карточку
+                </div>
+
+                {/* Card Controls */}
+                <div style={{ display: 'flex', gap: 10, marginTop: 14 }} onClick={(e) => e.stopPropagation()}>
+                  <button 
+                    className="icon-button"
+                    onClick={handleReplay}
+                    title="Повторить отрывок"
+                    style={{ width: 40, height: 40, borderRadius: '50%' }}
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                  <button 
+                    className="icon-button"
+                    onClick={() => {
+                      if (isPlaying) stopAudio();
+                      else startPlayback(currentTrack);
+                    }}
+                    style={{ 
+                      width: 40, 
+                      height: 40, 
+                      borderRadius: '50%',
+                      background: isPlaying ? 'rgba(239, 68, 68, 0.2)' : 'var(--grad-primary)',
+                      color: '#fff',
+                      borderColor: 'transparent'
+                    }}
+                  >
+                    {isPlaying ? <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>❚❚</span> : <Play size={16} fill="#fff" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* BACK: Revealed Answer */}
+              <div className="flashcard-back">
+                {currentTrack.albumArt && (
+                  <img 
+                    src={currentTrack.albumArt} 
+                    alt="" 
+                    style={{ 
+                      width: 104, 
+                      height: 104, 
+                      borderRadius: 16, 
+                      objectFit: 'cover', 
+                      marginBottom: 12,
+                      boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
+                      border: '2px solid rgba(255,255,255,0.1)'
+                    }} 
+                  />
+                )}
+                <div style={{ 
+                  fontSize: '1.25rem', 
+                  fontWeight: 900, 
+                  textAlign: 'center',
+                  lineHeight: 1.25,
+                  maxWidth: '90%'
+                }}>
+                  {currentTrack.name}
+                </div>
+                <div style={{ 
+                  fontSize: '1.05rem', 
+                  color: '#c4b5fd', 
+                  fontWeight: 700, 
+                  marginTop: 6,
+                  textAlign: 'center'
+                }}>
+                  {currentTrack.artist}
+                </div>
+                {currentTrack.year && (
+                  <div style={{ 
+                    fontSize: '0.82rem', 
+                    color: 'var(--text-muted)', 
+                    marginTop: 6,
+                    background: 'rgba(255,255,255,0.06)',
+                    padding: '2px 8px',
+                    borderRadius: 8
+                  }}>
+                    Год выпуска: {currentTrack.year}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Waveform Equalizer */}
-          <div className="waveform-container">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-              <div 
-                key={i} 
-                className={`waveform-bar ${isPlaying ? 'playing' : ''}`} 
-              />
-            ))}
-          </div>
-
-          {/* Quick Play/Replay Controller */}
-          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+          {/* Action Area: Reveal Button vs Right / Wrong Buttons */}
+          {!isFlipped ? (
             <button 
-              className="icon-button"
-              onClick={handleReplay}
-              title="Повторить отрывок"
-              style={{ width: 44, height: 44, borderRadius: '50%' }}
-            >
-              <RotateCcw size={18} />
-            </button>
-
-            <button 
-              className="icon-button"
-              onClick={() => {
-                if (isPlaying) stopAudio();
-                else startPlayback(currentTrack);
-              }}
-              style={{ 
-                width: 44, 
-                height: 44, 
-                borderRadius: '50%',
-                background: isPlaying ? 'rgba(239, 68, 68, 0.2)' : 'var(--grad-primary)',
-                color: '#fff',
-                borderColor: 'transparent'
+              className="action-btn"
+              onClick={handleFlipCard}
+              style={{
+                padding: '16px 20px',
+                fontSize: '1.05rem',
+                borderRadius: 'var(--radius-lg)'
               }}
             >
-              {isPlaying ? <span style={{ fontWeight: 800 }}>❚❚</span> : <Play size={18} fill="#fff" />}
+              <Eye size={20} />
+              <span>Показать ответ (Перевернуть)</span>
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* MODE 1: 4 Options */}
-      {subMode === 'options' && (
-        <div className="options-grid">
-          {options.map((opt) => {
-            const isSelected = selectedOption === opt.id;
-            const isRightAnswer = opt.id === currentTrack.id;
-
-            let buttonClass = 'option-btn';
-            if (hasAnswered) {
-              if (isRightAnswer) buttonClass += ' correct';
-              else if (isSelected) buttonClass += ' wrong';
-            }
-
-            return (
-              <button
-                key={opt.id}
-                className={buttonClass}
-                onClick={() => handleOptionClick(opt)}
-                disabled={hasAnswered}
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <button 
+                className="action-btn"
+                style={{ 
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  boxShadow: '0 0 25px rgba(16, 185, 129, 0.4)',
+                  padding: '16px 14px',
+                  borderRadius: 'var(--radius-lg)'
+                }}
+                onClick={() => handleCardResult(true)}
               >
-                <div>
-                  <div className="option-text-main">{opt.name}</div>
-                  <div className="option-text-sub">{opt.artist} {opt.year ? `(${opt.year})` : ''}</div>
-                </div>
-                {hasAnswered && isRightAnswer && <Check size={20} color="#10b981" />}
-                {hasAnswered && isSelected && !isRightAnswer && <X size={20} color="#ef4444" />}
+                <Check size={22} />
+                <span style={{ fontSize: '1rem' }}>Знал! (+1)</span>
               </button>
-            );
-          })}
+
+              <button 
+                className="action-btn"
+                style={{ 
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  boxShadow: '0 0 25px rgba(239, 68, 68, 0.4)',
+                  padding: '16px 14px',
+                  borderRadius: 'var(--radius-lg)'
+                }}
+                onClick={() => handleCardResult(false)}
+              >
+                <X size={22} />
+                <span style={{ fontSize: '1rem' }}>Не вспомнил</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* MODE 2: Buzzer / Фальстарт */}
+      {/* ============================================================ */}
+      {/* MODE 2: BUZZER / PARTY MODE (Кто быстрее назвал трек вслух)  */}
+      {/* ============================================================ */}
       {subMode === 'buzzer' && (
         <div className="buzzer-container">
           {!buzzerPressed ? (
@@ -462,129 +561,92 @@ export default function QuizView({
                     <X size={18} /> Мимо (-1)
                   </button>
                 </div>
-              ) : null}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* MODE 3: Flashcard 3D Memory Drill */}
-      {subMode === 'flashcards' && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div 
-            className="flashcard-wrapper" 
-            onClick={() => {
-              soundFx.playClick();
-              setIsFlipped(!isFlipped);
-            }}
-          >
-            <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
-              {/* Front of card */}
-              <div className="flashcard-front">
-                <div style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: '50%',
-                  background: 'var(--grad-primary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontSize: '2rem',
-                  fontWeight: 900,
-                  boxShadow: 'var(--shadow-neon-purple)',
-                  marginBottom: 16
-                }}>
-                  {isPlaying ? '♫' : '?'}
-                </div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>Слушай отрывок</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: 6 }}>
-                  Нажмите на карточку, чтобы перевернуть и свериться
-                </div>
-              </div>
-
-              {/* Back of card */}
-              <div className="flashcard-back">
-                {currentTrack.albumArt && (
-                  <img 
-                    src={currentTrack.albumArt} 
-                    alt="" 
-                    style={{ width: 90, height: 90, borderRadius: 14, objectFit: 'cover', marginBottom: 12 }} 
-                  />
-                )}
-                <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>{currentTrack.name}</div>
-                <div style={{ fontSize: '0.95rem', color: '#c4b5fd', marginTop: 4, fontWeight: 600 }}>
-                  {currentTrack.artist}
-                </div>
-                {currentTrack.year && (
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                    Год выпуска: {currentTrack.year}
+              ) : (
+                <div className="reveal-card">
+                  {currentTrack.albumArt && <img src={currentTrack.albumArt} alt="" className="reveal-art" />}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 800 }}>{currentTrack.name}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{currentTrack.artist}</div>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Flashcard Evaluation Buttons */}
-          {isFlipped && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%' }}>
-              <button 
-                className="action-btn"
-                style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
-                onClick={() => handleFlashcardEvaluate(true)}
-              >
-                <Check size={18} /> Помню
-              </button>
-              <button 
-                className="action-btn"
-                style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
-                onClick={() => handleFlashcardEvaluate(false)}
-              >
-                <X size={18} /> Забыл
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Reveal Card (Details about the song after answer) */}
-      {hasAnswered && subMode !== 'flashcards' && (
-        <div className="reveal-card">
-          {currentTrack.albumArt && (
-            <img src={currentTrack.albumArt} alt="" className="reveal-art" />
-          )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ 
-                fontSize: '0.72rem', 
-                fontWeight: 700, 
-                color: isCorrect ? '#4ade80' : '#f87171',
-                textTransform: 'uppercase'
-              }}>
-                {isCorrect ? '✓ Верно!' : '✗ Не угадали'}
-              </span>
-              {currentTrack.year && (
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                  • {currentTrack.year} г.
-                </span>
+                  <button className="action-btn" onClick={handleNextTrack} style={{ width: 'auto', padding: '10px 14px' }}>
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
               )}
             </div>
-            <div style={{ fontSize: '1rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {currentTrack.name}
+          )}
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODE 3: 4 OPTIONS (Optional Test Mode)                        */}
+      {/* ============================================================ */}
+      {subMode === 'options' && (
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div className="player-hero" style={{ padding: '0 0 16px' }}>
+            <div className="waveform-container">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                <div key={i} className={`waveform-bar ${isPlaying ? 'playing' : ''}`} />
+              ))}
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {currentTrack.artist}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="icon-button" onClick={handleReplay} style={{ width: 40, height: 40, borderRadius: '50%' }}>
+                <RotateCcw size={16} />
+              </button>
+              <button 
+                className="icon-button"
+                onClick={() => { if (isPlaying) stopAudio(); else startPlayback(currentTrack); }}
+                style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--grad-primary)', color: '#fff', borderColor: 'transparent' }}
+              >
+                {isPlaying ? <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>❚❚</span> : <Play size={16} fill="#fff" />}
+              </button>
             </div>
           </div>
 
-          <button 
-            className="action-btn"
-            onClick={handleNextTrack}
-            style={{ width: 'auto', padding: '10px 14px', borderRadius: 12 }}
-          >
-            <span>Дальше</span>
-            <ArrowRight size={18} />
-          </button>
+          <div className="options-grid">
+            {options.map((opt) => {
+              const isSelected = selectedOption === opt.id;
+              const isRightAnswer = opt.id === currentTrack.id;
+
+              let buttonClass = 'option-btn';
+              if (hasAnswered) {
+                if (isRightAnswer) buttonClass += ' correct';
+                else if (isSelected) buttonClass += ' wrong';
+              }
+
+              return (
+                <button
+                  key={opt.id}
+                  className={buttonClass}
+                  onClick={() => handleOptionClick(opt)}
+                  disabled={hasAnswered}
+                >
+                  <div>
+                    <div className="option-text-main">{opt.name}</div>
+                    <div className="option-text-sub">{opt.artist} {opt.year ? `(${opt.year})` : ''}</div>
+                  </div>
+                  {hasAnswered && isRightAnswer && <Check size={20} color="#10b981" />}
+                  {hasAnswered && isSelected && !isRightAnswer && <X size={20} color="#ef4444" />}
+                </button>
+              );
+            })}
+          </div>
+
+          {hasAnswered && (
+            <div className="reveal-card">
+              {currentTrack.albumArt && <img src={currentTrack.albumArt} alt="" className="reveal-art" />}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: isCorrect ? '#4ade80' : '#f87171' }}>
+                  {isCorrect ? '✓ Верно!' : '✗ Не угадали'}
+                </div>
+                <div style={{ fontSize: '1rem', fontWeight: 800 }}>{currentTrack.name}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{currentTrack.artist}</div>
+              </div>
+              <button className="action-btn" onClick={handleNextTrack} style={{ width: 'auto', padding: '10px 14px' }}>
+                <ArrowRight size={18} />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
