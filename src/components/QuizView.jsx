@@ -33,7 +33,7 @@ export default function QuizView({
   initialSubMode = 'flashcards',
   onExitToLobby
 }) {
-  const [subMode, setSubMode] = useState(initialSubMode); // 'flashcards' | 'buzzer' | 'options'
+  const [subMode, setSubMode] = useState(initialSubMode === 'buzzer' ? 'flashcards' : initialSubMode); // 'flashcards' | 'options'
   
   // Local shuffled playlist so every game session is random without repeating songs
   const [shuffledDeck, setShuffledDeck] = useState(() => shuffleArray(tracks));
@@ -55,12 +55,7 @@ export default function QuizView({
   const [isCorrect, setIsCorrect] = useState(false);
   const [options, setOptions] = useState([]);
 
-  // Buzzer submode state
-  const [buzzerPressed, setBuzzerPressed] = useState(false);
-  const [buzzerCountdown, setBuzzerCountdown] = useState(5);
-
   const timerIntervalRef = useRef(null);
-  const buzzerIntervalRef = useRef(null);
 
   // When parent tracks array changes (e.g. user selected another pack), re-shuffle
   useEffect(() => {
@@ -89,8 +84,6 @@ export default function QuizView({
     setHasAnswered(false);
     setSelectedOption(null);
     setIsCorrect(false);
-    setBuzzerPressed(false);
-    setBuzzerCountdown(5);
     setTimeLeft(fragmentDuration);
     stopAudio();
 
@@ -124,26 +117,6 @@ export default function QuizView({
 
     return () => clearInterval(timerIntervalRef.current);
   }, [isPlaying, timeLeft]);
-
-  // Buzzer 5s countdown
-  useEffect(() => {
-    if (buzzerPressed && !hasAnswered) {
-      buzzerIntervalRef.current = setInterval(() => {
-        setBuzzerCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(buzzerIntervalRef.current);
-            soundFx.playWrong();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else {
-      clearInterval(buzzerIntervalRef.current);
-    }
-
-    return () => clearInterval(buzzerIntervalRef.current);
-  }, [buzzerPressed, hasAnswered]);
 
   const startPlayback = (track) => {
     if (!track) return;
@@ -197,9 +170,7 @@ export default function QuizView({
   const advanceToNext = () => {
     setIsTransitioning(true);
     setIsFlipped(false); // Flip back to front
-    setBuzzerPressed(false);
     setHasAnswered(false);
-    setBuzzerCountdown(5);
     setSelectedOption(null);
     setIsCorrect(null);
     stopAudio();
@@ -267,48 +238,6 @@ export default function QuizView({
     }
   };
 
-  // Buzzer mode
-  const handleBuzzerPress = () => {
-    if (buzzerPressed || isTransitioning) return;
-    try {
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate([150, 60, 150]);
-      }
-    } catch (e) {}
-    soundFx.playBuzzer();
-    stopAudio();
-    setBuzzerPressed(true);
-    setBuzzerCountdown(5);
-  };
-
-  const handleBuzzerResult = (correct) => {
-    if (hasAnswered) return;
-    setHasAnswered(true);
-    setIsCorrect(correct);
-    if (correct) {
-      soundFx.playCorrect();
-      onRecordAnswer(true, currentTrack);
-      if (streak + 1 >= 3) {
-        confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
-      }
-    } else {
-      soundFx.playWrong();
-      onRecordAnswer(false, currentTrack);
-      onAddWeakTrack(currentTrack);
-    }
-  };
-
-  const handleBuzzerGiveUp = () => {
-    if (hasAnswered) return;
-    soundFx.playWrong();
-    stopAudio();
-    setBuzzerPressed(true);
-    setHasAnswered(true);
-    setIsCorrect(false);
-    onRecordAnswer(false, currentTrack);
-    onAddWeakTrack(currentTrack);
-  };
-
   if (!currentTrack || isPackCompleted) {
     return (
       <div style={{ textAlign: 'center', padding: '36px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -367,12 +296,6 @@ export default function QuizView({
           onClick={() => { soundFx.playClick(); setSubMode('flashcards'); }}
         >
           <span>🃏 Flashcards</span>
-        </button>
-        <button 
-          className={`mode-btn ${subMode === 'buzzer' ? 'active' : ''}`}
-          onClick={() => { soundFx.playClick(); setSubMode('buzzer'); }}
-        >
-          <span>🚨 Buzzer</span>
         </button>
         <button 
           className={`mode-btn ${subMode === 'options' ? 'active' : ''}`}
@@ -633,209 +556,7 @@ export default function QuizView({
         </div>
       )}
 
-      {/* ============================================================ */}
-      {/* MODE 2: BUZZER / PARTY MODE                                  */}
-      {/* ============================================================ */}
-      {subMode === 'buzzer' && (
-        <div className="buzzer-container">
-          {/* Top Audio Bar for Buzzer Mode */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            maxWidth: 360,
-            padding: '7px 14px',
-            background: 'var(--bg-surface-elevated)',
-            border: '1px solid var(--border-glow)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: 16
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="waveform-container" style={{ height: 18 }}>
-                {[1, 2, 3, 4, 5, 6].map(i => (
-                  <div key={i} className={`waveform-bar ${isPlaying ? 'playing' : ''}`} style={{ width: 3 }} />
-                ))}
-              </div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isPlaying ? 'var(--accent-glow)' : 'var(--text-secondary)' }}>
-                {isPlaying ? `Snippet: ${timeLeft}s` : (timeLeft === 0 ? 'Snippet finished' : 'Paused')}
-              </span>
-            </div>
 
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button 
-                className="icon-button"
-                onClick={handleReplay}
-                title="Replay snippet"
-                style={{ width: 34, height: 34, borderRadius: '50%' }}
-              >
-                <RotateCcw size={14} />
-              </button>
-              <button 
-                className="icon-button"
-                onClick={() => {
-                  if (isPlaying) stopAudio();
-                  else startPlayback(currentTrack);
-                }}
-                title={isPlaying ? 'Pause snippet' : 'Play snippet'}
-                style={{
-                  width: 34, 
-                  height: 34, 
-                  borderRadius: '50%',
-                  background: isPlaying ? 'rgba(239, 68, 68, 0.25)' : 'var(--grad-primary)',
-                  color: '#fff',
-                  borderColor: 'transparent'
-                }}
-              >
-                {isPlaying ? <Pause size={14} fill="#fff" /> : <Play size={14} fill="#fff" />}
-              </button>
-            </div>
-          </div>
-
-          {!buzzerPressed ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-              <button 
-                className="buzzer-btn"
-                onClick={handleBuzzerPress}
-                aria-label="Buzz to answer"
-              >
-                <span style={{ fontSize: '2.5rem', lineHeight: 1 }}>🚨</span>
-                <span style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '0.06em' }}>BUZZ!</span>
-                <span style={{ fontSize: '0.78rem', opacity: 0.9, fontWeight: 700, letterSpacing: '0.04em' }}>
-                  {isPlaying ? 'TAP TO ANSWER' : 'HIT THE BUZZER'}
-                </span>
-              </button>
-
-              <p style={{ marginTop: 14, color: 'var(--text-secondary)', fontSize: '0.86rem', maxWidth: 300, lineHeight: 1.4 }}>
-                Hit the buzzer to pause and call out the song title and artist!
-              </p>
-
-              <button 
-                className="btn-secondary"
-                onClick={handleBuzzerGiveUp}
-                style={{ marginTop: 10, padding: '8px 18px', fontSize: '0.82rem', borderRadius: 20 }}
-              >
-                <Eye size={14} style={{ marginRight: 6 }} /> Don't know? Reveal Song
-              </button>
-            </div>
-          ) : (
-            <div style={{ width: '100%', maxWidth: 420 }}>
-              {/* Countdown or Status Header */}
-              <div style={{
-                background: buzzerCountdown <= 2 ? 'rgba(239, 68, 68, 0.18)' : 'rgba(236, 72, 153, 0.15)',
-                border: `1px solid ${buzzerCountdown <= 2 ? 'rgba(239, 68, 68, 0.5)' : 'rgba(236, 72, 153, 0.4)'}`,
-                borderRadius: 'var(--radius-lg)',
-                padding: '16px',
-                marginBottom: 14,
-                textAlign: 'center',
-                transition: 'all 0.3s ease'
-              }}>
-                <div style={{ 
-                  fontSize: '0.8rem', 
-                  color: buzzerCountdown <= 2 ? '#f87171' : '#f472b6', 
-                  fontWeight: 800, 
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase' 
-                }}>
-                  {hasAnswered ? 'Answer Evaluated' : '⚡ Time to call out the song!'}
-                </div>
-                {!hasAnswered && (
-                  <div style={{ 
-                    fontSize: '3.2rem', 
-                    fontWeight: 900, 
-                    color: buzzerCountdown <= 2 ? '#ef4444' : '#fff', 
-                    margin: '4px 0',
-                    lineHeight: 1
-                  }}>
-                    {buzzerCountdown}s
-                  </div>
-                )}
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                  {hasAnswered 
-                    ? 'Check track details below and continue' 
-                    : 'Announce artist & song title out loud before the timer hits 0!'}
-                </div>
-              </div>
-
-              {!hasAnswered ? (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <button 
-                    className="action-btn"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      padding: '15px 10px',
-                      fontSize: '1rem',
-                      fontWeight: 800,
-                      borderRadius: 'var(--radius-md)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8
-                    }}
-                    onClick={() => handleBuzzerResult(true)}
-                  >
-                    <Check size={20} /> Got It! (+1)
-                  </button>
-                  <button 
-                    className="action-btn"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      padding: '15px 10px',
-                      fontSize: '1rem',
-                      fontWeight: 800,
-                      borderRadius: 'var(--radius-md)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8
-                    }}
-                    onClick={() => handleBuzzerResult(false)}
-                  >
-                    <X size={20} /> Missed (-1)
-                  </button>
-                </div>
-              ) : (
-                <div style={{ width: '100%' }}>
-                  <div className="reveal-card">
-                    {currentTrack.albumArt ? (
-                      <img src={currentTrack.albumArt} alt="" className="reveal-art" />
-                    ) : (
-                      <div className="reveal-art" style={{ background: 'var(--grad-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                        🎵
-                      </div>
-                    )}
-                    <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                      <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>{currentTrack.name}</div>
-                      <div style={{ fontSize: '0.88rem', color: '#c4b5fd', fontWeight: 600, marginTop: 2 }}>{currentTrack.artist}</div>
-                      {currentTrack.year && (
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                          Released: {currentTrack.year}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <button 
-                    className="action-btn" 
-                    onClick={advanceToNext} 
-                    style={{ 
-                      width: '100%', 
-                      marginTop: 14, 
-                      padding: '15px 20px', 
-                      fontSize: '1.05rem', 
-                      fontWeight: 800,
-                      borderRadius: 'var(--radius-md)'
-                    }}
-                  >
-                    <span>Next Track</span>
-                    <ArrowRight size={20} />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* ============================================================ */}
       {/* MODE 3: 4 OPTIONS                                            */}

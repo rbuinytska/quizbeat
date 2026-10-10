@@ -25,7 +25,6 @@ const SONG_COUNT_OPTIONS = [
 
 const GAME_MODES = [
   { id: 'flashcards', emoji: '🃏', name: 'Flashcards', desc: 'Flip card to check song & artist' },
-  { id: 'buzzer', emoji: '🚨', name: 'Buzzer Mode', desc: 'Hit buzzer & name track out loud' },
   { id: 'options', emoji: '🎯', name: '4 Choices', desc: 'Classic A-B-C-D multiple choice test' }
 ];
 
