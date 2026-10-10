@@ -861,8 +861,8 @@ export const WORLD_TRACKS = [
   }
 ];
 
-// Spotify Oldies Party Mix (Imported from playlist 7KppzMcreAEcAMuhXx5vNh)
-export const SPOTIFY_OLDIES_TRACKS = [
+// Oldies Party Mix (30 Greatest Hits)
+export const PARTY_OLDIES_TRACKS = [
   {
     "id": "sp_3BovdzfaX4jb5KFQwoPfAw",
     "name": "Beat It",

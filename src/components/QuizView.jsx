@@ -18,14 +18,12 @@ import {
 } from 'lucide-react';
 import { soundFx } from '../services/soundFx';
 import { previewPlayer, shuffleArray } from '../services/previewService';
-import { spotifyPlayer } from '../services/spotify';
 
 export default function QuizView({
   tracks = [],
   packName = '',
   fragmentDuration = 10,
   onDurationChange,
-  isSpotifyConnected,
   onAddWeakTrack,
   score,
   streak,
@@ -123,13 +121,7 @@ export default function QuizView({
     setTimeLeft(fragmentDuration);
     setIsPlaying(true);
 
-    if (isSpotifyConnected && track.spotifyUri) {
-      const randomStartMs = Math.floor(Math.random() * 40000) + 15000;
-      spotifyPlayer.playTrack(track.spotifyUri, randomStartMs);
-      setTimeout(() => {
-        stopAudio();
-      }, fragmentDuration * 1000);
-    } else if (track.audioUrl) {
+    if (track.audioUrl) {
       previewPlayer.play(track.audioUrl, fragmentDuration, () => {
         setIsPlaying(false);
       });
@@ -139,11 +131,7 @@ export default function QuizView({
   const stopAudio = () => {
     setIsPlaying(false);
     clearInterval(timerIntervalRef.current);
-    if (isSpotifyConnected) {
-      spotifyPlayer.pause();
-    } else {
-      previewPlayer.stop();
-    }
+    previewPlayer.stop();
   };
 
   const handleReplay = (e) => {

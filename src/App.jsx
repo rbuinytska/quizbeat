@@ -9,12 +9,6 @@ import WeakTracksView from './components/WeakTracksView';
 import SettingsModal from './components/SettingsModal';
 
 import { CURATED_PACKS, shuffleArray } from './services/previewService';
-import { 
-  handleSpotifyCallback, 
-  getSpotifyToken, 
-  spotifyPlayer, 
-  fetchUserPlaylists 
-} from './services/spotify';
 import { soundFx } from './services/soundFx';
 import { 
   getLocalPlayerProfile, 
@@ -49,24 +43,7 @@ export default function App() {
   });
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Spotify State
-  const [isSpotifyConnected, setIsSpotifyConnected] = useState(false);
-  const [userPlaylists, setUserPlaylists] = useState([]);
 
-  // Check Spotify callback & auth on mount
-  useEffect(() => {
-    const initAuth = async () => {
-      const codeHandled = await handleSpotifyCallback();
-      const token = getSpotifyToken();
-      if (token) {
-        setIsSpotifyConnected(true);
-        spotifyPlayer.initialize();
-        const playlists = await fetchUserPlaylists();
-        setUserPlaylists(playlists);
-      }
-    };
-    initAuth();
-  }, []);
 
   // Save weak tracks to localStorage
   useEffect(() => {
@@ -202,7 +179,6 @@ export default function App() {
               packName={activePack.name}
               fragmentDuration={fragmentDuration}
               onDurationChange={handleDurationChange}
-              isSpotifyConnected={isSpotifyConnected}
               onAddWeakTrack={handleAddWeakTrack}
               score={playerProfile.score || 0}
               streak={playerProfile.currentStreak || 0}
@@ -217,9 +193,6 @@ export default function App() {
           <PlaylistsView 
             activePackId={activePack.id}
             onSelectPack={handleSelectPack}
-            isSpotifyConnected={isSpotifyConnected}
-            userSpotifyPlaylists={userPlaylists}
-            onOpenSettings={() => setIsSettingsOpen(true)}
           />
         )}
 
@@ -236,7 +209,6 @@ export default function App() {
             onClearWeakTracks={handleClearWeakTracks}
             onRemoveWeakTrack={handleRemoveWeakTrack}
             onTrainWeakTracks={handleTrainWeakTracks}
-            isSpotifyConnected={isSpotifyConnected}
           />
         )}
       </main>
@@ -252,7 +224,6 @@ export default function App() {
       <SettingsModal 
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
-        isSpotifyConnected={isSpotifyConnected}
         fragmentDuration={fragmentDuration}
         onDurationChange={handleDurationChange}
         soundEnabled={soundEnabled}

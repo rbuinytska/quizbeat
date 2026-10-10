@@ -1,53 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   X, 
   Smartphone, 
   Volume2, 
   VolumeX, 
   Clock, 
-  Disc, 
-  LogOut, 
-  LogIn, 
-  ChevronDown, 
-  ChevronUp,
-  Sparkles,
-  HelpCircle
+  Sparkles 
 } from 'lucide-react';
-import { 
-  getStoredClientId, 
-  redirectToSpotifyAuth, 
-  logoutSpotify 
-} from '../services/spotify';
 import { soundFx } from '../services/soundFx';
 
 export default function SettingsModal({
   isOpen,
   onClose,
-  isSpotifyConnected,
   fragmentDuration,
   onDurationChange,
   soundEnabled,
   onToggleSound
 }) {
-  const [showSpotifyOption, setShowSpotifyOption] = useState(false);
-
   if (!isOpen) return null;
-
-  const handleSpotifyLogin = async () => {
-    soundFx.playClick();
-    const clientId = getStoredClientId();
-    try {
-      await redirectToSpotifyAuth(clientId);
-    } catch (err) {
-      alert(err.message || 'Failed to connect Spotify');
-    }
-  };
-
-  const handleSpotifyLogout = () => {
-    soundFx.playClick();
-    logoutSpotify();
-    window.location.reload();
-  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -151,63 +121,6 @@ export default function SettingsModal({
             <p>• <b>iPhone (Safari)</b>: Tap Share ⎋ $\rightarrow$ <b>«Add to Home Screen»</b>.</p>
             <p style={{ marginTop: 4 }}>• <b>Android (Chrome)</b>: Tap ⋮ $\rightarrow$ <b>«Install app»</b>.</p>
           </div>
-        </div>
-
-        {/* SECTION 3: Discreet Spotify login for the owner (optional) */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-lg)',
-          overflow: 'hidden',
-          marginBottom: 14
-        }}>
-          <button
-            onClick={() => setShowSpotifyOption(!showSpotifyOption)}
-            style={{
-              width: '100%',
-              background: 'transparent',
-              border: 'none',
-              padding: '12px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              fontSize: '0.82rem',
-              fontWeight: 600
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Disc size={16} color={isSpotifyConnected ? '#1db954' : 'var(--text-muted)'} />
-              <span>{isSpotifyConnected ? 'Spotify Connected (Premium)' : 'Personal Spotify Account'}</span>
-            </div>
-            {showSpotifyOption ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
-
-          {showSpotifyOption && (
-            <div style={{ padding: '0 16px 14px', borderTop: '1px solid var(--border-subtle)' }}>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '10px 0 12px', lineHeight: 1.4 }}>
-                All 95+ tracks work out of the box without Spotify. Logging in is only required if you want to load your private personal playlists.
-              </p>
-              {!isSpotifyConnected ? (
-                <button 
-                  className="action-btn"
-                  style={{ background: 'var(--grad-spotify)', padding: '10px 14px', fontSize: '0.85rem' }}
-                  onClick={handleSpotifyLogin}
-                >
-                  <LogIn size={16} /> Log In with Spotify
-                </button>
-              ) : (
-                <button 
-                  className="action-btn btn-secondary"
-                  style={{ padding: '8px 12px', fontSize: '0.8rem' }}
-                  onClick={handleSpotifyLogout}
-                >
-                  <LogOut size={14} /> Disconnect Spotify
-                </button>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Done Button */}

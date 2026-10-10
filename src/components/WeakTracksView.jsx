@@ -9,32 +9,26 @@ import {
   Music2
 } from 'lucide-react';
 import { previewPlayer } from '../services/previewService';
-import { spotifyPlayer } from '../services/spotify';
 import { soundFx } from '../services/soundFx';
 
 export default function WeakTracksView({
   weakTracks = [],
   onClearWeakTracks,
   onRemoveWeakTrack,
-  onTrainWeakTracks,
-  isSpotifyConnected
+  onTrainWeakTracks
 }) {
   const [playingId, setPlayingId] = useState(null);
 
   const handlePlayPreview = (track) => {
     soundFx.playClick();
     if (playingId === track.id) {
-      if (isSpotifyConnected) spotifyPlayer.pause();
-      else previewPlayer.stop();
+      previewPlayer.stop();
       setPlayingId(null);
       return;
     }
 
     setPlayingId(track.id);
-    if (isSpotifyConnected && track.spotifyUri) {
-      spotifyPlayer.playTrack(track.spotifyUri, 30000);
-      setTimeout(() => setPlayingId(null), 10000);
-    } else if (track.audioUrl) {
+    if (track.audioUrl) {
       previewPlayer.play(track.audioUrl, 10, () => {
         setPlayingId(null);
       });

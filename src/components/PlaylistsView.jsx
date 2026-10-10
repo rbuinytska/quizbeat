@@ -27,7 +27,6 @@ import {
   deleteCustomPack,
   shuffleArray
 } from '../services/previewService';
-import { fetchPlaylistTracks, redirectToSpotifyAuth } from '../services/spotify';
 import { soundFx } from '../services/soundFx';
 
 // Quick Generator Presets (Queries that yield 25-30 instant retro party tracks)
@@ -43,12 +42,9 @@ const PRESET_THEMES = [
 
 export default function PlaylistsView({
   activePackId,
-  onSelectPack,
-  isSpotifyConnected,
-  userSpotifyPlaylists = [],
-  onOpenSettings
+  onSelectPack
 }) {
-  const [activeTab, setActiveTab] = useState('curated'); // 'curated' | 'search' | 'spotify'
+  const [activeTab, setActiveTab] = useState('curated'); // 'curated' | 'search' | 'import'
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [customPacks, setCustomPacks] = useState(getCustomSavedPacks);
 
@@ -60,10 +56,7 @@ export default function PlaylistsView({
   const [isGeneratingPreset, setIsGeneratingPreset] = useState(false);
   const [presetGeneratingName, setPresetGeneratingName] = useState('');
 
-  // Spotify / Tracklist importer states
-  const [spotifyUrlInput, setSpotifyUrlInput] = useState('');
-  const [isImportingSpotify, setIsImportingSpotify] = useState(false);
-  const [spotifyImportError, setSpotifyImportError] = useState('');
+  // Tracklist importer states
   const [textListInput, setTextListInput] = useState('');
   const [isResolvingText, setIsResolvingText] = useState(false);
   const [resolveProgress, setResolveProgress] = useState({ current: 0, total: 0, song: '' });
@@ -150,43 +143,6 @@ export default function PlaylistsView({
     onSelectPack(newPack);
   };
 
-  // Spotify URL Importer
-  const handleImportSpotifyUrl = async (e) => {
-    e.preventDefault();
-    if (!spotifyUrlInput.trim()) return;
-
-    if (!isSpotifyConnected) {
-      onOpenSettings();
-      return;
-    }
-
-    setIsImportingSpotify(true);
-    setSpotifyImportError('');
-    try {
-      const result = await fetchPlaylistTracks(spotifyUrlInput);
-      if (result.tracks.length < 2) {
-        setSpotifyImportError('Playlist must contain at least 2 tracks');
-        return;
-      }
-      soundFx.playClick();
-      const newPack = {
-        id: `spotify_${Date.now()}`,
-        isCustom: true,
-        name: `Spotify: ${result.playlistName}`,
-        subtitle: `${result.tracks.length} tracks from Spotify`,
-        emoji: '🎧',
-        tracks: result.tracks
-      };
-      saveCustomPack(newPack);
-      refreshCustomPacks();
-      onSelectPack(newPack);
-    } catch (err) {
-      setSpotifyImportError(err.message || 'Failed to load playlist');
-    } finally {
-      setIsImportingSpotify(false);
-    }
-  };
-
   // Text/Tracklist Importer
   const handleImportTextList = async () => {
     if (!textListInput.trim()) return;
@@ -247,10 +203,10 @@ export default function PlaylistsView({
           <span>🔍 Online Search</span>
         </button>
         <button 
-          className={`mode-btn ${activeTab === 'spotify' ? 'active' : ''}`}
-          onClick={() => { soundFx.playClick(); setActiveTab('spotify'); }}
+          className={`mode-btn ${activeTab === 'import' ? 'active' : ''}`}
+          onClick={() => { soundFx.playClick(); setActiveTab('import'); }}
         >
-          <span>🎧 Spotify / Import</span>
+          <span>📋 Import Songs</span>
         </button>
       </div>
 
@@ -504,11 +460,11 @@ export default function PlaylistsView({
       )}
 
       {/* ============================================================ */}
-      {/* TAB 3: SPOTIFY & SONG LIST IMPORTER                           */}
+      {/* TAB 3: CUSTOM SONG LIST IMPORTER                             */}
       {/* ============================================================ */}
-      {activeTab === 'spotify' && (
+      {activeTab === 'import' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Method 1: Paste Tracklist from Spotify / Notes */}
+          {/* Paste Tracklist */}
           <div style={{
             background: 'var(--bg-surface-elevated)',
             border: '1px solid var(--border-glow)',
@@ -518,11 +474,11 @@ export default function PlaylistsView({
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <ListMusic size={18} color="var(--accent-glow)" />
               <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff' }}>
-                Paste Tracklist (No Spotify Login Needed)
+                Paste Tracklist (Custom Song List)
               </span>
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
-              Copy song titles or artist names from any Spotify playlist or text notes (one song per line). QuizBeat automatically matches real audio previews for each track completely free:
+              Paste song titles or artist names from your notes or playlists (one song per line). QuizBeat automatically matches real audio previews for each track completely free:
             </p>
 
             <textarea 
@@ -549,123 +505,6 @@ export default function PlaylistsView({
             >
               <Sparkles size={16} /> Generate Quiz Pack with Audio Previews
             </button>
-          </div>
-
-          {/* Method 2: Spotify URL / Connect */}
-          <div style={{
-            background: 'rgba(29, 185, 84, 0.08)',
-            border: '1px solid rgba(29, 185, 84, 0.3)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '16px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <Disc size={18} color="var(--accent-spotify)" />
-              <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff' }}>
-                Connect Personal Spotify Account (Optional)
-              </span>
-            </div>
-
-            {!isSpotifyConnected ? (
-              <div>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: 12 }}>
-                  All 100+ songs in QuizBeat already work 100% free without logging in! Connecting your Spotify account is only needed if you want to load your private personal playlists from Spotify Premium.
-                </p>
-                <button 
-                  className="action-btn"
-                  style={{ background: 'var(--grad-spotify)', boxShadow: 'var(--shadow-neon-green)' }}
-                  onClick={async () => {
-                    soundFx.playClick();
-                    try {
-                      await redirectToSpotifyAuth();
-                    } catch (e) {
-                      onOpenSettings();
-                    }
-                  }}
-                >
-                  <Disc size={16} /> Log In with Spotify
-                </button>
-              </div>
-            ) : (
-              <div>
-                <form onSubmit={handleImportSpotifyUrl} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                    Paste Spotify playlist link:
-                  </label>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input 
-                      type="text" 
-                      className="input-field"
-                      placeholder="https://open.spotify.com/playlist/..."
-                      value={spotifyUrlInput}
-                      onChange={(e) => setSpotifyUrlInput(e.target.value)}
-                    />
-                    <button 
-                      type="submit" 
-                      className="action-btn"
-                      style={{ width: 'auto', padding: '0 16px', background: 'var(--grad-spotify)' }}
-                      disabled={isImportingSpotify}
-                    >
-                      {isImportingSpotify ? '...' : <ArrowRight size={18} />}
-                    </button>
-                  </div>
-                  {spotifyImportError && (
-                    <div style={{ color: '#f87171', fontSize: '0.8rem' }}>
-                      {spotifyImportError}
-                    </div>
-                  )}
-                </form>
-
-                {userSpotifyPlaylists.length > 0 && (
-                  <div style={{ marginTop: 14 }}>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>
-                      Your Playlists:
-                    </div>
-                    <div className="packs-grid">
-                      {userSpotifyPlaylists.map(pl => (
-                        <div 
-                          key={pl.id}
-                          className="pack-card"
-                          onClick={async () => {
-                            soundFx.playClick();
-                            try {
-                              const res = await fetchPlaylistTracks(pl.id);
-                              const newPack = {
-                                id: `spotify_${pl.id}`,
-                                isCustom: true,
-                                name: pl.name,
-                                subtitle: `${res.tracks.length} tracks`,
-                                emoji: '🎧',
-                                tracks: res.tracks
-                              };
-                              saveCustomPack(newPack);
-                              refreshCustomPacks();
-                              onSelectPack(newPack);
-                            } catch (e) {
-                              alert(e.message);
-                            }
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            {pl.image ? (
-                              <img src={pl.image} alt="" style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'cover' }} />
-                            ) : (
-                              <div style={{ width: 42, height: 42, borderRadius: 10, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <ListMusic size={18} />
-                              </div>
-                            )}
-                            <div>
-                              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{pl.name}</div>
-                              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{pl.tracksCount} tracks</div>
-                            </div>
-                          </div>
-                          <ArrowRight size={16} color="var(--text-muted)" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       )}
