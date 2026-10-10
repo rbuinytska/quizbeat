@@ -9,7 +9,7 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         onClick={() => onTabChange('quiz')}
       >
         <Gamepad2 size={21} />
-        <span>Игра</span>
+        <span>Game</span>
       </button>
 
       <button 
@@ -17,7 +17,7 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         onClick={() => onTabChange('packs')}
       >
         <Disc3 size={21} />
-        <span>Плейлисты</span>
+        <span>Playlists</span>
       </button>
 
       <button 
@@ -25,7 +25,7 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         onClick={() => onTabChange('leaderboard')}
       >
         <Trophy size={21} />
-        <span>Лидеры</span>
+        <span>Leaders</span>
       </button>
 
       <button 
@@ -33,7 +33,7 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         onClick={() => onTabChange('weak')}
       >
         <AlertCircle size={21} />
-        <span>Ошибки</span>
+        <span>Mistakes</span>
         {weakTracksCount > 0 && (
           <span className="nav-badge">{weakTracksCount}</span>
         )}
@@ -44,7 +44,7 @@ export default function Navigation({ activeTab, onTabChange, weakTracksCount }) 
         onClick={() => onTabChange('settings')}
       >
         <Settings size={21} />
-        <span>Настройки</span>
+        <span>Settings</span>
       </button>
     </nav>
   );

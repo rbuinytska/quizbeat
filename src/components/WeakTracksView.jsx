@@ -57,9 +57,9 @@ export default function WeakTracksView({
         }}>
           <CheckCircle size={36} color="#10b981" />
         </div>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Ошибок пока нет!</h3>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>No mistakes yet!</h3>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 8, lineHeight: 1.5 }}>
-          Вы отлично справляетесь. Когда в игре вы ошибетесь или забудете песню, она автоматически сохранится сюда для интервального повторения перед квизом.
+          Great job! When you miss a song or forget the artist during gameplay, it will automatically save here so you can review before your pub quiz.
         </p>
       </div>
     );
@@ -79,10 +79,10 @@ export default function WeakTracksView({
       }}>
         <div>
           <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#fca5a5' }}>
-            Работа над ошибками ({weakTracks.length})
+            Mistakes Review ({weakTracks.length})
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2 }}>
-            Песни, которые вызвали затруднение
+            Songs that gave you a hard time
           </div>
         </div>
 
@@ -92,7 +92,7 @@ export default function WeakTracksView({
             soundFx.playClick();
             onClearWeakTracks();
           }}
-          title="Очистить список"
+          title="Clear list"
         >
           <Trash2 size={16} color="#f87171" />
         </button>
@@ -108,7 +108,7 @@ export default function WeakTracksView({
             onTrainWeakTracks();
           }}
         >
-          <Zap size={18} /> Тренировать ТОЛЬКО забытые треки ({weakTracks.length})
+          <Zap size={18} /> Practice ONLY Missed Songs ({weakTracks.length})
         </button>
       )}
 
@@ -153,7 +153,7 @@ export default function WeakTracksView({
                   className="icon-button"
                   style={{ width: 34, height: 34 }}
                   onClick={() => handlePlayPreview(track)}
-                  title="Прослушать"
+                  title="Play snippet"
                 >
                   {isThisPlaying ? <span style={{ fontSize: '0.7rem', fontWeight: 900 }}>❚❚</span> : <Play size={14} />}
                 </button>
@@ -165,7 +165,7 @@ export default function WeakTracksView({
                     soundFx.playClick();
                     onRemoveWeakTrack(track.id);
                   }}
-                  title="Удалить из ошибок"
+                  title="Remove from mistakes"
                 >
                   <Trash2 size={14} />
                 </button>

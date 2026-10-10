@@ -27,7 +27,7 @@ export default function LeaderboardView({
   onUpdateProfile
 }) {
   const [isEditingNick, setIsEditingNick] = useState(false);
-  const [nickInput, setNickInput] = useState(playerProfile.nickname || 'Игрок');
+  const [nickInput, setNickInput] = useState(playerProfile.nickname || 'Player');
   const [copiedShare, setCopiedShare] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
@@ -59,7 +59,7 @@ export default function LeaderboardView({
 
   const handleShareStats = () => {
     soundFx.playClick();
-    const shareText = `🎵 Я угадал ${playerProfile.totalGuessed || 0} ретро-хитов и набрал ${playerProfile.score || 0} очков в QuizBeat (Oldies Party)! Сыграй тоже: https://rbuinytska.github.io/quizbeat/`;
+    const shareText = `🎵 I guessed ${playerProfile.totalGuessed || 0} retro hits and scored ${playerProfile.score || 0} pts on QuizBeat (Oldies Party)! Try it out: https://rbuinytska.github.io/quizbeat/`;
 
     if (navigator.share) {
       navigator.share({
@@ -103,7 +103,7 @@ export default function LeaderboardView({
               position: 'relative',
               flexShrink: 0
             }}
-            title="Нажмите, чтобы сменить эмодзи"
+            title="Click to choose avatar"
           >
             {playerProfile.avatar || '🪩'}
             <div style={{
@@ -125,13 +125,13 @@ export default function LeaderboardView({
             {!isEditingNick ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {playerProfile.nickname || 'Игрок'}
+                  {playerProfile.nickname || 'Player'}
                 </span>
                 <button 
                   className="icon-button"
                   style={{ width: 26, height: 26, borderRadius: 6, flexShrink: 0 }}
                   onClick={() => setIsEditingNick(true)}
-                  title="Изменить никнейм"
+                  title="Edit nickname"
                 >
                   <Edit2 size={12} />
                 </button>
@@ -183,7 +183,7 @@ export default function LeaderboardView({
             flexShrink: 0
           }}>
             <div style={{ fontSize: '0.68rem', color: '#fcd34d', fontWeight: 700, textTransform: 'uppercase' }}>
-              Очки
+              Points
             </div>
             <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#fff' }}>
               {playerProfile.score || 0}
@@ -235,7 +235,7 @@ export default function LeaderboardView({
             {accuracy}%
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 2, fontWeight: 600 }}>
-            Точность
+            Accuracy
           </div>
         </div>
 
@@ -250,7 +250,7 @@ export default function LeaderboardView({
             {playerProfile.totalGuessed || 0}
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 2, fontWeight: 600 }}>
-            Угадано
+            Guessed
           </div>
         </div>
 
@@ -265,7 +265,7 @@ export default function LeaderboardView({
             x{playerProfile.bestStreak || 0}
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 2, fontWeight: 600 }}>
-            Рекорд
+            Best Streak
           </div>
         </div>
 
@@ -280,7 +280,7 @@ export default function LeaderboardView({
             {playerProfile.totalMissed || 0}
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 2, fontWeight: 600 }}>
-            Ошибок
+            Missed
           </div>
         </div>
       </div>
@@ -292,10 +292,10 @@ export default function LeaderboardView({
         onClick={handleShareStats}
       >
         {copiedShare ? <Check size={18} /> : <Share2 size={18} />}
-        <span>{copiedShare ? 'Ссылка и счет скопированы!' : 'Поделиться результатом с друзьями'}</span>
+        <span>{copiedShare ? 'Link & score copied!' : 'Share Score with Friends'}</span>
       </button>
 
-      {/* SECTION 3: Leaderboard / Таблица лидеров */}
+      {/* SECTION 3: Leaderboard */}
       <div style={{ marginTop: 6 }}>
         <div style={{ 
           display: 'flex', 
@@ -305,10 +305,10 @@ export default function LeaderboardView({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: '0.95rem' }}>
             <Trophy size={16} color="var(--accent-amber)" />
-            <span>Таблица Лидеров Квиза</span>
+            <span>Quiz Leaderboard</span>
           </div>
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-            Топ игроков
+            Top Players
           </span>
         </div>
 
@@ -367,12 +367,12 @@ export default function LeaderboardView({
                           borderRadius: 6,
                           fontWeight: 700
                         }}>
-                          ВЫ
+                          YOU
                         </span>
                       )}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      Угадано: {item.totalGuessed} • Точность: {item.accuracy || 0}%
+                      Guessed: {item.totalGuessed} • Accuracy: {item.accuracy || 0}%
                     </div>
                   </div>
                 </div>
@@ -382,7 +382,7 @@ export default function LeaderboardView({
                     {item.score}
                   </div>
                   <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-                    очков
+                    pts
                   </div>
                 </div>
               </div>

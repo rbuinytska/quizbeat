@@ -48,7 +48,7 @@ export default function PlaylistsView({
     try {
       const results = await searchTracksOnline(searchQuery);
       setSearchResults(results);
-      setCustomPackName(`Поиск: "${searchQuery}"`);
+      setCustomPackName(`Search: "${searchQuery}"`);
     } catch (err) {
       console.error(err);
     } finally {
@@ -61,8 +61,8 @@ export default function PlaylistsView({
     soundFx.playClick();
     onSelectPack({
       id: `custom_search_${Date.now()}`,
-      name: customPackName || 'Пользовательский пак',
-      subtitle: `${searchResults.length} треков для тренировки`,
+      name: customPackName || 'Custom Pack',
+      subtitle: `${searchResults.length} tracks to practice`,
       tracks: searchResults
     });
   };
@@ -81,18 +81,18 @@ export default function PlaylistsView({
     try {
       const result = await fetchPlaylistTracks(spotifyUrlInput);
       if (result.tracks.length < 2) {
-        setSpotifyImportError('В плейлисте должно быть минимум 2 трека');
+        setSpotifyImportError('Playlist must contain at least 2 tracks');
         return;
       }
       soundFx.playClick();
       onSelectPack({
         id: `spotify_${Date.now()}`,
         name: `Spotify: ${result.playlistName}`,
-        subtitle: `${result.tracks.length} треков из вашего Spotify`,
+        subtitle: `${result.tracks.length} tracks from your Spotify`,
         tracks: result.tracks
       });
     } catch (err) {
-      setSpotifyImportError(err.message || 'Не удалось загрузить плейлист');
+      setSpotifyImportError(err.message || 'Failed to load playlist');
     } finally {
       setIsImportingSpotify(false);
     }
@@ -106,13 +106,13 @@ export default function PlaylistsView({
           className={`mode-btn ${activeTab === 'curated' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setActiveTab('curated'); }}
         >
-          <span>🔥 Готовые паки</span>
+          <span>🔥 Featured Packs</span>
         </button>
         <button 
           className={`mode-btn ${activeTab === 'search' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setActiveTab('search'); }}
         >
-          <span>🔍 Поиск онлайн</span>
+          <span>🔍 Online Search</span>
         </button>
         <button 
           className={`mode-btn ${activeTab === 'spotify' ? 'active' : ''}`}
@@ -186,7 +186,7 @@ export default function PlaylistsView({
                         {pack.subtitle}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: '#c4b5fd', marginTop: 4, fontWeight: 700 }}>
-                        {pack.tracks.length} треков
+                        {pack.tracks.length} tracks
                       </div>
                     </div>
                   </div>
@@ -206,7 +206,7 @@ export default function PlaylistsView({
             <input 
               type="text" 
               className="input-field"
-              placeholder="Напр. Elán, Karol Duchoň, ABBA, Queen..."
+              placeholder="E.g. Elán, Karol Duchoň, ABBA, Queen..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -224,14 +224,14 @@ export default function PlaylistsView({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                  Найдено: {searchResults.length} треков
+                  Found: {searchResults.length} tracks
                 </span>
                 <button 
                   className="action-btn"
                   style={{ width: 'auto', padding: '8px 14px', fontSize: '0.85rem' }}
                   onClick={handleCreateSearchPack}
                 >
-                  <PlusCircle size={16} /> Тренировать этот пак
+                  <PlusCircle size={16} /> Practice This Pack
                 </button>
               </div>
 
@@ -294,9 +294,9 @@ export default function PlaylistsView({
               }}>
                 <Disc size={26} />
               </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Подключите Spotify Premium</h3>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Connect Spotify Premium</h3>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.4 }}>
-                Позволит загружать любые ваши плейлисты словацких и мировых ретро-хитов прямо из медиатеки.
+                Import any playlists of Slovak and global retro hits directly from your personal Spotify library.
               </p>
               <button 
                 className="action-btn"
@@ -307,14 +307,14 @@ export default function PlaylistsView({
                 }}
                 onClick={onOpenSettings}
               >
-                Настроить Spotify вход
+                Configure Spotify Login
               </button>
             </div>
           ) : (
             <div>
               <form onSubmit={handleImportSpotifyUrl} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                  Вставьте ссылку на любой Spotify плейлист:
+                  Paste a link to any Spotify playlist:
                 </label>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input 
@@ -343,7 +343,7 @@ export default function PlaylistsView({
               {userSpotifyPlaylists.length > 0 && (
                 <div style={{ marginTop: 20 }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 10 }}>
-                    Ваши плейлисты:
+                    Your Playlists:
                   </div>
                   <div className="packs-grid">
                     {userSpotifyPlaylists.map(pl => (
@@ -357,7 +357,7 @@ export default function PlaylistsView({
                             onSelectPack({
                               id: `spotify_${pl.id}`,
                               name: pl.name,
-                              subtitle: `${res.tracks.length} треков`,
+                              subtitle: `${res.tracks.length} tracks`,
                               tracks: res.tracks
                             });
                           } catch (e) {
@@ -375,7 +375,7 @@ export default function PlaylistsView({
                           )}
                           <div>
                             <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{pl.name}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{pl.tracksCount} треков</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{pl.tracksCount} tracks</div>
                           </div>
                         </div>
                         <ArrowRight size={18} color="var(--text-muted)" />

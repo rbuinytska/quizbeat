@@ -295,9 +295,9 @@ export default function QuizView({
         }}>
           <Trophy size={40} />
         </div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Пак завершен!</h2>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Pack Completed!</h2>
         <p style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: '0.9rem', maxWidth: 300, lineHeight: 1.4 }}>
-          Вы прошли все <b>{shuffledDeck.length}</b> треков без единого повтора!
+          You completed all <b>{shuffledDeck.length}</b> tracks with no repeats!
         </p>
 
         <button 
@@ -305,7 +305,7 @@ export default function QuizView({
           style={{ marginTop: 24, width: 'auto', padding: '14px 28px' }}
           onClick={handleManualReshuffle}
         >
-          <Shuffle size={18} /> Перемешать и начать заново
+          <Shuffle size={18} /> Shuffle & Play Again
         </button>
       </div>
     );
@@ -323,19 +323,19 @@ export default function QuizView({
           className={`mode-btn ${subMode === 'flashcards' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setSubMode('flashcards'); }}
         >
-          <span>🃏 Карточки</span>
+          <span>🃏 Flashcards</span>
         </button>
         <button 
           className={`mode-btn ${subMode === 'buzzer' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setSubMode('buzzer'); }}
         >
-          <span>🚨 Фальстарт</span>
+          <span>🚨 Buzzer</span>
         </button>
         <button 
           className={`mode-btn ${subMode === 'options' ? 'active' : ''}`}
           onClick={() => { soundFx.playClick(); setSubMode('options'); }}
         >
-          <span>🎯 Тест А-Б-В-Г</span>
+          <span>🎯 4 Choices</span>
         </button>
       </div>
 
@@ -349,7 +349,7 @@ export default function QuizView({
             className="icon-button"
             onClick={handleManualReshuffle}
             style={{ width: 28, height: 28, borderRadius: 8 }}
-            title="Перемешать треки в случайном порядке"
+            title="Shuffle tracks"
           >
             <Shuffle size={13} />
           </button>
@@ -371,9 +371,9 @@ export default function QuizView({
                 borderRadius: '8px',
                 cursor: 'pointer'
               }}
-              title={sec === 3 ? 'Интро-раунд квиза' : `${sec} секунд`}
+              title={sec === 3 ? 'Intro round' : `${sec} seconds`}
             >
-              {sec}с{sec === 3 ? ' 🔥' : ''}
+              {sec}s{sec === 3 ? ' 🔥' : ''}
             </button>
           ))}
         </div>
@@ -443,10 +443,10 @@ export default function QuizView({
                 </div>
 
                 <div style={{ fontSize: '1.08rem', fontWeight: 800 }}>
-                  {isPlaying ? 'Слушайте отрывок...' : 'Отрывок сыгран'}
+                  {isPlaying ? 'Listening to snippet...' : 'Snippet finished'}
                 </div>
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 4, textAlign: 'center', maxWidth: 280 }}>
-                  Вспомните песню вслух, затем переверните карточку
+                  Guess the song out loud, then flip the card
                 </div>
 
                 {/* Card Controls */}
@@ -454,7 +454,7 @@ export default function QuizView({
                   <button 
                     className="icon-button"
                     onClick={handleReplay}
-                    title="Повторить отрывок"
+                    title="Replay snippet"
                     style={{ width: 38, height: 38, borderRadius: '50%' }}
                   >
                     <RotateCcw size={15} />
@@ -523,7 +523,7 @@ export default function QuizView({
                     padding: '2px 8px',
                     borderRadius: 8
                   }}>
-                    Год выпуска: {backTrackData.year}
+                    Released: {backTrackData.year}
                   </div>
                 )}
               </div>
@@ -543,7 +543,7 @@ export default function QuizView({
               }}
             >
               <Eye size={20} />
-              <span>Показать ответ (Перевернуть)</span>
+              <span>Show Answer (Flip)</span>
             </button>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -559,7 +559,7 @@ export default function QuizView({
                 onClick={() => handleCardResult(true)}
               >
                 <Check size={22} />
-                <span style={{ fontSize: '1rem' }}>Знал! (+1)</span>
+                <span style={{ fontSize: '1rem' }}>Knew It! (+1)</span>
               </button>
 
               <button 
@@ -574,7 +574,7 @@ export default function QuizView({
                 onClick={() => handleCardResult(false)}
               >
                 <X size={22} />
-                <span style={{ fontSize: '1rem' }}>Не вспомнил</span>
+                <span style={{ fontSize: '1rem' }}>Missed It</span>
               </button>
             </div>
           )}
@@ -593,13 +593,13 @@ export default function QuizView({
                 onClick={handleBuzzerPress}
                 disabled={!isPlaying}
               >
-                <span>ЖМИ!</span>
+                <span>BUZZ!</span>
                 <span style={{ fontSize: '0.8rem', opacity: 0.85, fontWeight: 600 }}>
-                  {isPlaying ? 'Знаешь трек?' : 'Включи музыку'}
+                  {isPlaying ? 'Know the song?' : 'Play snippet'}
                 </span>
               </button>
               <p style={{ marginTop: 18, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                Нажмите, как только узнали песню — музыка остановится для проверки ответа!
+                Hit the buzzer as soon as you recognize the song — music pauses to reveal!
               </p>
             </>
           ) : (
@@ -612,13 +612,13 @@ export default function QuizView({
                 marginBottom: 16
               }}>
                 <div style={{ fontSize: '0.85rem', color: '#f472b6', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Время назвать песню вслух
+                  Name the song out loud
                 </div>
                 <div style={{ fontSize: '3rem', fontWeight: 900, color: '#fff', margin: '8px 0' }}>
-                  {buzzerCountdown}с
+                  {buzzerCountdown}s
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  Назовите исполнителя и название друзьям!
+                  Announce the artist and title to your friends!
                 </div>
               </div>
 
@@ -629,14 +629,14 @@ export default function QuizView({
                     style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
                     onClick={() => handleBuzzerResult(true)}
                   >
-                    <Check size={18} /> Угадали (+1)
+                    <Check size={18} /> Got It! (+1)
                   </button>
                   <button 
                     className="action-btn"
                     style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
                     onClick={() => handleBuzzerResult(false)}
                   >
-                    <X size={18} /> Мимо (-1)
+                    <X size={18} /> Missed (-1)
                   </button>
                 </div>
               ) : (
@@ -715,7 +715,7 @@ export default function QuizView({
               {currentTrack.albumArt && <img src={currentTrack.albumArt} alt="" className="reveal-art" />}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: isCorrect ? '#4ade80' : '#f87171' }}>
-                  {isCorrect ? '✓ Верно!' : '✗ Не угадали'}
+                  {isCorrect ? '✓ Correct!' : '✗ Missed'}
                 </div>
                 <div style={{ fontSize: '1rem', fontWeight: 800 }}>{currentTrack.name}</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{currentTrack.artist}</div>

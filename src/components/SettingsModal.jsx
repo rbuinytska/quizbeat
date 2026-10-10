@@ -39,7 +39,7 @@ export default function SettingsModal({
     try {
       await redirectToSpotifyAuth(clientId);
     } catch (err) {
-      alert(err.message || 'Ошибка подключения Spotify');
+      alert(err.message || 'Failed to connect Spotify');
     }
   };
 
@@ -54,8 +54,8 @@ export default function SettingsModal({
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
         {/* Modal Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Настройки игры</h2>
-          <button className="icon-button" onClick={onClose} aria-label="Закрыть">
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Game Settings</h2>
+          <button className="icon-button" onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
         </div>
@@ -76,10 +76,10 @@ export default function SettingsModal({
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Clock size={16} color="var(--accent-purple)" />
-                <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>Время на отрывок</span>
+                <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>Snippet Duration</span>
               </div>
               <span style={{ fontSize: '0.8rem', color: '#c4b5fd', fontWeight: 700 }}>
-                {fragmentDuration} сек.
+                {fragmentDuration} sec
               </span>
             </div>
 
@@ -101,12 +101,12 @@ export default function SettingsModal({
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  {s}с{s === 3 ? ' 🔥' : ''}
+                  {s}s{s === 3 ? ' 🔥' : ''}
                 </button>
               ))}
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 6 }}>
-              3с — раунд «Угадай по интро», 10с — стандарт квиза
+              3s — Intro round, 10s — Quiz standard
             </div>
           </div>
 
@@ -117,8 +117,8 @@ export default function SettingsModal({
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {soundEnabled ? <Volume2 size={18} color="var(--accent-cyan)" /> : <VolumeX size={18} color="var(--text-muted)" />}
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Звуки и фанфары</div>
-                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Клики и звуки при ответах</div>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Sound Effects & Fanfare</div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Clicks, countdown, and answer chimes</div>
               </div>
             </div>
 
@@ -145,11 +145,11 @@ export default function SettingsModal({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <Smartphone size={18} color="var(--accent-pink)" />
-            <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>Играть на весь экран с телефона</span>
+            <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>Add to Home Screen (Fullscreen PWA)</span>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            <p>• <b>iPhone (Safari)</b>: Нажмите значок «Поделиться» ⎋ $\rightarrow$ <b>«На экран Домой»</b>.</p>
-            <p style={{ marginTop: 4 }}>• <b>Android (Chrome)</b>: Меню ⋮ $\rightarrow$ <b>«Установить приложение»</b>.</p>
+            <p>• <b>iPhone (Safari)</b>: Tap Share ⎋ $\rightarrow$ <b>«Add to Home Screen»</b>.</p>
+            <p style={{ marginTop: 4 }}>• <b>Android (Chrome)</b>: Tap ⋮ $\rightarrow$ <b>«Install app»</b>.</p>
           </div>
         </div>
 
@@ -179,7 +179,7 @@ export default function SettingsModal({
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Disc size={16} color={isSpotifyConnected ? '#1db954' : 'var(--text-muted)'} />
-              <span>{isSpotifyConnected ? 'Spotify подключен (Premium)' : 'Личный Spotify аккаунт'}</span>
+              <span>{isSpotifyConnected ? 'Spotify Connected (Premium)' : 'Personal Spotify Account'}</span>
             </div>
             {showSpotifyOption ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
@@ -187,7 +187,7 @@ export default function SettingsModal({
           {showSpotifyOption && (
             <div style={{ padding: '0 16px 14px', borderTop: '1px solid var(--border-subtle)' }}>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '10px 0 12px', lineHeight: 1.4 }}>
-                Все 95+ песен уже работают без Spotify. Подключение нужно только если вы хотите слушать свои личные приватные плейлисты.
+                All 95+ tracks work out of the box without Spotify. Logging in is only required if you want to load your private personal playlists.
               </p>
               {!isSpotifyConnected ? (
                 <button 
@@ -195,7 +195,7 @@ export default function SettingsModal({
                   style={{ background: 'var(--grad-spotify)', padding: '10px 14px', fontSize: '0.85rem' }}
                   onClick={handleSpotifyLogin}
                 >
-                  <LogIn size={16} /> Войти через Spotify
+                  <LogIn size={16} /> Log In with Spotify
                 </button>
               ) : (
                 <button 
@@ -203,7 +203,7 @@ export default function SettingsModal({
                   style={{ padding: '8px 12px', fontSize: '0.8rem' }}
                   onClick={handleSpotifyLogout}
                 >
-                  <LogOut size={14} /> Отключить Spotify
+                  <LogOut size={14} /> Disconnect Spotify
                 </button>
               )}
             </div>
@@ -215,7 +215,7 @@ export default function SettingsModal({
           className="action-btn"
           onClick={onClose}
         >
-          Готово
+          Done
         </button>
       </div>
     </div>

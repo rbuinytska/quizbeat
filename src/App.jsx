@@ -92,8 +92,8 @@ export default function App() {
     if (weakTracks.length < 2) return;
     setActivePack({
       id: `weak_drill_${Date.now()}`,
-      name: '🎯 Работа над ошибками',
-      subtitle: `${weakTracks.length} проблемных треков`,
+      name: '🎯 Mistakes Review',
+      subtitle: `${weakTracks.length} tracks to master`,
       tracks: [...weakTracks].sort(() => 0.5 - Math.random())
     });
     setActiveTab('quiz');

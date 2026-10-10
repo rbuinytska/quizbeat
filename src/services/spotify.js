@@ -50,7 +50,7 @@ export async function redirectToSpotifyAuth(clientId) {
 
   const activeClientId = clientId || getStoredClientId();
   if (!activeClientId) {
-    throw new Error('Укажите Spotify Client ID в настройках');
+    throw new Error('Please provide a Spotify Client ID in Settings');
   }
 
   const redirectUri = getRedirectUri();
@@ -159,7 +159,7 @@ export function logoutSpotify() {
 // Fetch tracks from a Spotify Playlist ID
 export async function fetchPlaylistTracks(playlistId) {
   const token = getSpotifyToken();
-  if (!token) throw new Error('Требуется авторизация в Spotify');
+  if (!token) throw new Error('Spotify login required');
 
   // Support both full Spotify URLs and raw IDs
   let cleanId = playlistId.trim();
@@ -172,7 +172,7 @@ export async function fetchPlaylistTracks(playlistId) {
   });
 
   if (!res.ok) {
-    throw new Error(`Ошибка загрузки плейлиста (${res.status})`);
+    throw new Error(`Failed to load playlist (${res.status})`);
   }
 
   const data = await res.json();

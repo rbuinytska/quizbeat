@@ -13,7 +13,7 @@ export function getLocalPlayerProfile() {
 
   const defaultProfile = {
     id: 'user_' + Math.random().toString(36).substring(2, 9),
-    nickname: 'Игрок',
+    nickname: 'Player',
     avatar: '🪩',
     totalGuessed: 0,
     totalMissed: 0,
@@ -35,17 +35,17 @@ export function saveLocalPlayerProfile(profile) {
 
 // Calculate player title / rank based on score
 export function getPlayerRank(totalGuessed) {
-  if (totalGuessed >= 50) return { title: 'Легенда Oldies Party', badge: '👑', color: '#f59e0b' };
-  if (totalGuessed >= 25) return { title: 'Звезда Дискотек', badge: '⭐', color: '#ec4899' };
-  if (totalGuessed >= 10) return { title: 'Знаток Ретро', badge: '🎧', color: '#8b5cf6' };
-  return { title: 'Новичок на Квизе', badge: '🌱', color: '#06b6d4' };
+  if (totalGuessed >= 50) return { title: 'Oldies Party Legend', badge: '👑', color: '#f59e0b' };
+  if (totalGuessed >= 25) return { title: 'Disco Superstar', badge: '⭐', color: '#ec4899' };
+  if (totalGuessed >= 10) return { title: 'Retro Music Expert', badge: '🎧', color: '#8b5cf6' };
+  return { title: 'Quiz Rookie', badge: '🌱', color: '#06b6d4' };
 }
 
 // Default community / party leaders so board is lively
 const DEFAULT_LEADERS = [
-  { id: 'leader_1', nickname: 'Диско-Королева', avatar: '💃', score: 3200, totalGuessed: 32, bestStreak: 8, accuracy: 88 },
-  { id: 'leader_2', nickname: 'Карол Духонь Фанат', avatar: '🎙️', score: 2600, totalGuessed: 26, bestStreak: 6, accuracy: 82 },
-  { id: 'leader_3', nickname: 'Queen & ABBA Team', avatar: '🎸', score: 1900, totalGuessed: 19, bestStreak: 5, accuracy: 76 }
+  { id: 'leader_1', nickname: 'Disco Queen', avatar: '💃', score: 3200, totalGuessed: 32, bestStreak: 8, accuracy: 88 },
+  { id: 'leader_2', nickname: 'Karol Duchoň Fan', avatar: '🎙️', score: 2600, totalGuessed: 26, bestStreak: 6, accuracy: 82 },
+  { id: 'leader_3', nickname: 'Queen & ABBA Crew', avatar: '🎸', score: 1900, totalGuessed: 19, bestStreak: 5, accuracy: 76 }
 ];
 
 export function getCachedLeaderboard() {
@@ -67,7 +67,7 @@ export function syncScoreToLeaderboard(playerProfile) {
 
     const entry = {
       id: playerProfile.id,
-      nickname: playerProfile.nickname || 'Игрок',
+      nickname: playerProfile.nickname || 'Player',
       avatar: playerProfile.avatar || '🪩',
       score: playerProfile.score || 0,
       totalGuessed: playerProfile.totalGuessed || 0,

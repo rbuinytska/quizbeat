@@ -26,13 +26,13 @@ export default function Header({
 
       <div className="header-actions">
         {streak > 1 && (
-          <div className="stat-chip streak" title={`Серия верных ответов: ${streak}`}>
+          <div className="stat-chip streak" title={`Streak: ${streak}`}>
             <Flame size={14} color="#f59e0b" fill="#f59e0b" />
             <span>x{streak}</span>
           </div>
         )}
 
-        <div className="stat-chip" title="Ваши очки">
+        <div className="stat-chip" title="Your score">
           <Trophy size={13} color="var(--accent-purple)" />
           <span>{score}</span>
         </div>
@@ -40,7 +40,7 @@ export default function Header({
         <button 
           className="icon-button"
           onClick={onOpenSettings}
-          aria-label="Настройки"
+          aria-label="Settings"
         >
           <SettingsIcon size={18} />
         </button>

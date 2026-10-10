@@ -11,9 +11,9 @@ export function shuffleArray(arr) {
 }
 
 export const PACK_CATEGORIES = [
-  { id: 'all', name: 'Все паки' },
-  { id: 'slovak', name: '🇸🇰 Slovenské Oldies' },
-  { id: 'world', name: '🌍 Svetové Oldies' }
+  { id: 'all', name: 'All Packs' },
+  { id: 'slovak', name: '🇸🇰 Slovak Oldies' },
+  { id: 'world', name: '🌍 World Oldies' }
 ];
 
 // Helper to filter by genre/decade if desired
@@ -29,8 +29,8 @@ export const CURATED_PACKS = [
   {
     id: 'pack_super_mix',
     category: 'all',
-    name: '🪩 Oldies Party: Полный Супер-Микс',
-    subtitle: '95 культовых мировых и словацких песен в случайном порядке',
+    name: '🪩 Oldies Party: Mega Mix',
+    subtitle: '95 iconic world & Slovak retro hits shuffled',
     emoji: '🔥',
     color: 'from-purple-600 to-pink-600',
     tracks: shuffleArray([...SK_TRACKS, ...WORLD_TRACKS])
@@ -38,8 +38,8 @@ export const CURATED_PACKS = [
   {
     id: 'pack_sk_mega',
     category: 'slovak',
-    name: '🇸🇰 Slovenské Oldies: Мегамикс (53 трека)',
-    subtitle: 'Karol Duchoň, Meky Žbirka, Elán, Team, Marika Gombitová, Müller, Nagy',
+    name: '🇸🇰 Slovak Oldies: Classics (53 Tracks)',
+    subtitle: 'Karol Duchoň, Meky Žbirka, Elán, Team, Marika Gombitová, Müller',
     emoji: '👑',
     color: 'from-blue-600 to-indigo-700',
     tracks: shuffleArray(SK_TRACKS)
@@ -47,7 +47,7 @@ export const CURATED_PACKS = [
   {
     id: 'pack_world_mega',
     category: 'world',
-    name: '🌍 Svetové Oldies: Мегамикс (42 трека)',
+    name: '🌍 World Oldies: Greatest Hits (42 Tracks)',
     subtitle: 'ABBA, Boney M, Queen, Jackson, Whitney, Modern Talking, a-ha',
     emoji: '🪩',
     color: 'from-amber-400 to-pink-600',
@@ -56,7 +56,7 @@ export const CURATED_PACKS = [
   {
     id: 'pack_disco_dance',
     category: 'world',
-    name: '🕺 Диско & Евроденс (70-е / 80-е / 90-е)',
+    name: '🕺 Disco & Eurodance (70s / 80s / 90s)',
     subtitle: 'Boney M, ABBA, Ottawan, Modern Talking, Dr. Alban, Haddaway',
     emoji: '🪩',
     color: 'from-pink-500 to-purple-600',
@@ -65,7 +65,7 @@ export const CURATED_PACKS = [
   {
     id: 'pack_retro_rock',
     category: 'all',
-    name: '⚡ Ретро-Рок: Мировой & Словацкий',
+    name: '⚡ Retro Rock: Legends & Anthems',
     subtitle: 'Queen, AC/DC, Scorpions, Elán, Tublatanka, Team, Bon Jovi',
     emoji: '🎸',
     color: 'from-amber-500 to-red-600',
@@ -79,7 +79,7 @@ export async function searchTracksOnline(query) {
 
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=sk&media=music&entity=song&limit=30`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('Chyba vyhľadávania skladieb');
+  if (!res.ok) throw new Error('Failed to search tracks');
 
   const data = await res.json();
   let results = data.results || [];
